@@ -8,18 +8,34 @@ namespace Tharga.Toolkit.TypeService;
 
 public static class TypeExtensions
 {
+    /// <summary>
+    /// Registers AssemblyService in services.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddAssemblyService(this IServiceCollection services)
     {
         services.AddSingleton<IAssemblyService, AssemblyService>();
         return services;
     }
 
+    /// <summary>
+    /// Creates an AssemblyQualifiedNameWithout without the version part.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static string ToAssemblyQualifiedNameWithoutVersion(this Type type)
     {
         var r = $"{type.FullName}, {type.Assembly.GetName().Name}";
         return r;
     }
 
+    /// <summary>
+    /// Get the type using a AssemblyQualifiedName string. Trying to fetch with provided version or with default version '1.0.0.0'.
+    /// </summary>
+    /// <param name="typeName"></param>
+    /// <returns></returns>
+    /// <exception cref="TypeMissingException"></exception>
     public static Type GetType(string typeName)
     {
         var type = GetTypeWithVersion(typeName, "1.0.0.0") ?? GetTypeWithVersion(typeName);
@@ -47,7 +63,7 @@ public static class TypeExtensions
         }
     }
 
-    public static string ReplaceAssemblyVersion(string typeName, string version)
+    private static string ReplaceAssemblyVersion(string typeName, string version)
     {
         var tvn = typeName;
         if (!string.IsNullOrEmpty(version))
@@ -66,24 +82,41 @@ public static class TypeExtensions
         return tvn;
     }
 
-    public static Type GetGenericType(this Type item, Type baseType, int index)
+    //public static Type GetGenericType(this Type item, Type baseType, int index)
+    //{
+    //    if (item.IsGenericType) return item.GenericTypeArguments[index];
+
+    //    foreach (var inf in item.GetInterfaces())
+    //    {
+    //        if (inf.IsGenericType)
+    //        {
+    //            return inf.GenericTypeArguments[index];
+    //        }
+
+    //        return inf.GetGenericType(baseType, index);
+    //    }
+
+    //    throw new InvalidOperationException($"Cannot find generic parameter of type {baseType.Name} from object of type {item.Name}.");
+    //}
+
+    /// <summary>
+    /// Checks if a type is or is based of a certain type. Also checks interfaces and collection-types.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public static bool IsOfType<T>(this Type item)
     {
-        if (item.IsGenericType) return item.GenericTypeArguments[index];
-
-        foreach (var inf in item.GetInterfaces())
-        {
-            if (inf.IsGenericType)
-            {
-                return inf.GenericTypeArguments[index];
-            }
-
-            return inf.GetGenericType(baseType, index);
-        }
-
-        throw new InvalidOperationException($"Cannot find generic parameter of type {baseType.Name} from object of type {item.Name}.");
+        return item.IsOfType(typeof(T));
     }
 
-    public static bool IsOfType(this Type item, Type type, bool includeInterfaceSearch = true)
+    /// <summary>
+    /// Checks if a type is or is based of a certain type. Also checks interfaces and collection-types.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static bool IsOfType(this Type item, Type type)
     {
         if (item == null) return false;
         if (item == type) return true;
@@ -99,18 +132,21 @@ public static class TypeExtensions
             return item.BaseType.IsOfType(type);
         }
 
-        if (includeInterfaceSearch)
+        foreach (var inf in item.GetInterfaces())
         {
-            foreach (var inf in item.GetInterfaces())
-            {
-                var r = inf.IsOfType(type);
-                if (r) return true;
-            }
+            var r = inf.IsOfType(type);
+            if (r) return true;
         }
 
         return false;
     }
 
+    /// <summary>
+    /// Checks the type, base type or interfaces have generic parameters.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="aggregatorType"></param>
+    /// <returns></returns>
     public static bool HasGenericParameter(this TypeInfo type, Type aggregatorType)
     {
         var p = type;

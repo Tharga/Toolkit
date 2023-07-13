@@ -10,6 +10,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<RootNamespace>Tharga.Toolkit</RootNamespace>
 		<PackageProjectUrl>https://github.com/Tharga/Toolkit</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
