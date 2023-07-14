@@ -15,7 +15,7 @@ namespace Tharga.Toolkit.Timer
                 do
                 {
                     orig = _lastTimeStamp;
-                    long now = DateTime.UtcNow.Ticks;
+                    var now = DateTime.UtcNow.Ticks;
                     newval = Math.Max(now, orig + 1);
                 } while (Interlocked.CompareExchange(ref _lastTimeStamp, newval, orig) != orig);
 
