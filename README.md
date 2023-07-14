@@ -44,5 +44,4 @@ assemblyService.LoadTypes("CacheKey", x => x.IsOfType(typeof([SomeType]), false)
 
 Some features that are yet to be documented.
 - AssignmentExtension
-- AutoMockedTest
 - DependencyTest
