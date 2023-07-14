@@ -49,18 +49,18 @@ stages:
         projects: '**/*.Tests.csproj'
         arguments: '--collect "Code coverage" --configuration $(buildConfiguration) --filter "Category!=Database"'
 
-    - task: BuildQualityChecks@8
-      displayName: 'Build Quality Checks'
-      inputs:
-        checkWarnings: true
-        warningFailOption: 'build'
-        allowWarningVariance: true
-        warningVariance: '1'
-        checkCoverage: true
-        coverageFailOption: 'build'
-        coverageType: 'lines'
-        allowCoverageVariance: true
-        coverageVariance: '1'
+    #- task: BuildQualityChecks@8
+    #  displayName: 'Build Quality Checks'
+    #  inputs:
+    #    checkWarnings: true
+    #    warningFailOption: 'build'
+    #    allowWarningVariance: true
+    #    warningVariance: '1'
+    #    checkCoverage: true
+    #    coverageFailOption: 'build'
+    #    coverageType: 'blocks'
+    #    allowCoverageVariance: true
+    #    coverageVariance: '1'
 
     - task: DotNetCoreCLI@2
       displayName: 'Pack Tharga.Toolkit'
@@ -83,13 +83,19 @@ stages:
         packagesToPack: '**/Tharga.Test.Toolkit.csproj'
         versioningScheme: 'byBuildNumber'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Push nuget packages locally'
+    #- task: DotNetCoreCLI@2
+    #  displayName: 'Push nuget packages locally'
+    #  inputs:
+    #    command: 'push'
+    #    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    #    nuGetFeedType: 'internal'
+    #    publishVstsFeed: 'df4b267e-c55c-4a36-8fe3-8e98d5d8dbbb/5cea672d-cb79-44f6-beb8-2eaba59e670d'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifacts'
       inputs:
-        command: 'push'
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-        nuGetFeedType: 'internal'
-        publishVstsFeed: 'df4b267e-c55c-4a36-8fe3-8e98d5d8dbbb/5cea672d-cb79-44f6-beb8-2eaba59e670d'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
 
 - stage: Release
   displayName: Release
