@@ -15,7 +15,7 @@ public static class TypeExtensions
     /// <returns></returns>
     public static IServiceCollection AddAssemblyService(this IServiceCollection services)
     {
-        services.AddSingleton<IAssemblyService, AssemblyService>();
+        services.AddSingleton<IAssemblyService>(_ => new AssemblyService());
         return services;
     }
 
