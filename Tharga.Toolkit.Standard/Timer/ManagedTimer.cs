@@ -151,7 +151,7 @@ namespace Tharga.Toolkit.Timer
                         if (!_autoReset) return;
                     }
                 }
-                catch (TaskCanceledException e)
+                catch (TaskCanceledException)
                 {
                     //TODO: When this has been triggered, the timer will restart too, fast and try to recall the same iteration once again, without waiting for the delay.
                 }
