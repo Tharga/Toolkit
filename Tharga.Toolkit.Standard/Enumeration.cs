@@ -31,10 +31,15 @@ namespace Tharga.Toolkit
             if (otherValue == null)
                 return false;
 
-            var typeMatches = GetType().Equals(obj.GetType());
+            var typeMatches = GetType().AssemblyQualifiedName == obj.GetType().AssemblyQualifiedName;
             var valueMatches = Id.Equals(otherValue.Id);
 
             return typeMatches && valueMatches;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public int CompareTo(object other) => Id.CompareTo(((Enumeration)other).Id);

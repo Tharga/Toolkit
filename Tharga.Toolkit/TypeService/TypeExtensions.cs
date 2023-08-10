@@ -82,23 +82,6 @@ public static class TypeExtensions
         return tvn;
     }
 
-    //public static Type GetGenericType(this Type item, Type baseType, int index)
-    //{
-    //    if (item.IsGenericType) return item.GenericTypeArguments[index];
-
-    //    foreach (var inf in item.GetInterfaces())
-    //    {
-    //        if (inf.IsGenericType)
-    //        {
-    //            return inf.GenericTypeArguments[index];
-    //        }
-
-    //        return inf.GetGenericType(baseType, index);
-    //    }
-
-    //    throw new InvalidOperationException($"Cannot find generic parameter of type {baseType.Name} from object of type {item.Name}.");
-    //}
-
     /// <summary>
     /// Checks if a type is or is based of a certain type. Also checks interfaces and collection-types.
     /// </summary>
