@@ -27,8 +27,4 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Moq" Version="4.5.3" />
-	</ItemGroup>
-
 </Project>
