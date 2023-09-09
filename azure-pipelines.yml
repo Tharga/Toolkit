@@ -83,6 +83,13 @@ stages:
         packagesToPack: '**/Tharga.Test.Toolkit.csproj'
         versioningScheme: 'byBuildNumber'
 
+    - task: DotNetCoreCLI@2
+      displayName: 'Pack Tharga.Toolkit.TimerJob'
+      inputs:
+        command: 'pack'
+        packagesToPack: '**/Tharga.Toolkit.TimerJob.csproj'
+        versioningScheme: 'byBuildNumber'
+
     #- task: DotNetCoreCLI@2
     #  displayName: 'Push nuget packages locally'
     #  inputs:
