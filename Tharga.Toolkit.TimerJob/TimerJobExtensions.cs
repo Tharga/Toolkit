@@ -13,7 +13,7 @@ namespace Tharga.Toolkit.TimerJob;
 
 public static class TimerJobExtensions
 {
-    public static IServiceCollection AddTimerJobService(this IServiceCollection services, Func<TypeInfo, ITimerJob> resolver, IEnumerable<Assembly> assemblies = null)
+    public static IServiceCollection AddTimerJobService(this IServiceCollection services, Func<TypeInfo, ITimerJob> resolver = null, IEnumerable<Assembly> assemblies = null)
     {
         services.AddAssemblyService();
 
@@ -28,7 +28,11 @@ public static class TimerJobExtensions
         {
             var assemblyService = e.GetService<IAssemblyService>();
             var logger = e.GetService<ILogger<TimerJobService>>();
-            return new TimerJobService(assemblyService, logger, resolver);
+            return new TimerJobService(assemblyService, logger, (t) =>
+            {
+                var instance = resolver?.Invoke(t) ?? e.GetService(t.AsType());
+                return instance as ITimerJob;
+            });
         });
 
         //var types = AssemblyService.GetCurrentDomainDefinedTypes(assemblies).Where(x => x.IsOfType(typeof(ITimerJob)) && !x.IsInterface).ToArray();
