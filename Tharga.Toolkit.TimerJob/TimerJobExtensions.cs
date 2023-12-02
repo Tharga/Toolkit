@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -45,9 +40,9 @@ public static class TimerJobExtensions
         return services;
     }
 
-    public static IApplicationBuilder UseTimerJobService(this IApplicationBuilder app)
+    public static IHost UseTimerJobService(this IHost app)
     {
-        var timerJobService = app.ApplicationServices.GetService<ITimerJobServiceManager>();
+        var timerJobService = app.Services.GetService<ITimerJobServiceManager>();
         timerJobService?.Start();
 
         return app;
