@@ -149,4 +149,27 @@ public static class TypeExtensions
         if (!p.GenericTypeArguments.Any()) return false;
         return p.GenericTypeArguments[0] == aggregatorType;
     }
+
+    /// <summary>
+    /// Get the first generic parameter type for provided type that is based on T.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static Type GetGenericTypeOf<T>(this Type type)
+    {
+        if (type.GenericTypeArguments.Any())
+        {
+            foreach (var argument in type.GenericTypeArguments)
+            {
+                if (argument.IsOfType<T>())
+                {
+                    return argument;
+                }
+            }
+        }
+
+        return type.BaseType == null ? null : GetGenericTypeOf<T>(type.BaseType);
+    }
+
 }
