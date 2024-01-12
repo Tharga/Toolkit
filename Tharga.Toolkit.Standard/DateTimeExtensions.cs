@@ -15,23 +15,23 @@ namespace Tharga.Toolkit
             return item.ToLocalTime().ToString(format);
         }
 
-        public static string ToLocalDurationString(this DateTime? item)
+        public static string ToLocalDurationString(this DateTime? item, DurationOptions options = null)
         {
             if (item == null) return string.Empty;
-            return item.Value.ToLocalTime().ToDurationString();
+            return item.Value.ToLocalTime().ToDurationString(options);
         }
 
-        public static string ToLocalDurationString(this DateTime item)
+        public static string ToLocalDurationString(this DateTime item, DurationOptions options = null)
         {
-            return item.ToLocalTime().ToDurationString();
+            return item.ToLocalTime().ToDurationString(options);
         }
 
-        public static string ToDateTimeString(this DateTime? item)
+        public static string ToDateTimeString(this DateTime? item, DurationOptions options = null)
         {
             return item == null ? string.Empty : item.Value.ToDateTimeString();
         }
 
-        public static string ToDateTimeString(this DateTime item)
+        public static string ToDateTimeString(this DateTime item, DurationOptions options = null)
         {
             return $"{item.ToShortDateString()} {item.ToLongTimeString()}";
         }
@@ -41,9 +41,9 @@ namespace Tharga.Toolkit
             return $"{timeSpan.Hours}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
         }
 
-        public static string ToDurationString(this DateTime? item)
+        public static string ToDurationString(this DateTime? item, DurationOptions options = null)
         {
-            return item == null ? string.Empty : item.Value.ToDurationString();
+            return item == null ? string.Empty : item.Value.ToDurationString(options);
         }
 
         public static string ToDurationString(this DateTime item, DurationOptions options = null)
@@ -124,6 +124,43 @@ namespace Tharga.Toolkit
             return $"{preString}{duration.ToStringDurationString(options.StringOptions.Year)}{postString}";
         }
 
+        public static string ToTimeSpanString(this TimeSpan? item, TimeSpanStringOptions options = null)
+        {
+            return item == null ? string.Empty : item.Value.ToTimeSpanString(options);
+        }
+
+        public static string ToTimeSpanString(this TimeSpan item, TimeSpanStringOptions options = null)
+        {
+            options = options ?? TimeSpanStringOptionsExtensions.Get("en");
+
+            if (item.TotalSeconds <= 1)
+            {
+                //return $"{item.TotalMilliseconds:0} {options.Milliseconds}";
+                return ToStringDurationString(item, options.Millisecond);
+            }
+
+            if (item.TotalSeconds < 60)
+            {
+                //return $"{item.TotalSeconds:0} {options.Seconds}";
+                return ToStringDurationString(item, options.Second);
+            }
+
+            if (item.TotalMinutes < 60)
+            {
+                //return $"{item.TotalMinutes:0} {options.Minutes}";
+                return ToStringDurationString(item, options.Minute);
+            }
+
+            if (item.TotalHours < 24)
+            {
+                //return $"{item.TotalHours:0} {options.Hours}";
+                return ToStringDurationString(item, options.Hour);
+            }
+
+            //return $"{item.TotalDays:0} {options.Days}";
+            return ToStringDurationString(item, options.Day);
+        }
+
         private static string ToStringDurationString(this TimeSpan value, (EUnit Unit, UnitOption Option) unitOption)
         {
             double val;
@@ -160,43 +197,6 @@ namespace Tharga.Toolkit
             var plural = !(val > 1) ? unitOption.Option.SignularSign : unitOption.Option.PluralSign;
 
             return $"{val} {unitOption.Option.Value}{plural}";
-        }
-
-        public static string ToTimeSpanString(this TimeSpan? item)
-        {
-            return item == null ? string.Empty : item.Value.ToTimeSpanString();
-        }
-
-        public static string ToTimeSpanString(this TimeSpan item, TimeSpanStringOptions options = null)
-        {
-            options = options ?? TimeSpanStringOptionsExtensions.Get("en");
-
-            if (item.TotalSeconds <= 1)
-            {
-                //return $"{item.TotalMilliseconds:0} {options.Milliseconds}";
-                return ToStringDurationString(item, options.Millisecond);
-            }
-
-            if (item.TotalSeconds < 60)
-            {
-                //return $"{item.TotalSeconds:0} {options.Seconds}";
-                return ToStringDurationString(item, options.Second);
-            }
-
-            if (item.TotalMinutes < 60)
-            {
-                //return $"{item.TotalMinutes:0} {options.Minutes}";
-                return ToStringDurationString(item, options.Minute);
-            }
-
-            if (item.TotalHours < 24)
-            {
-                //return $"{item.TotalHours:0} {options.Hours}";
-                return ToStringDurationString(item, options.Hour);
-            }
-
-            //return $"{item.TotalDays:0} {options.Days}";
-            return ToStringDurationString(item, options.Day);
         }
     }
 }
