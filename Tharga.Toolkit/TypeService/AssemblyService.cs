@@ -86,10 +86,10 @@ public class AssemblyService : IAssemblyService
         var current = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         var name = current.GetName().Name?.Split('.').First();
 
-        var assms = AppDomain.CurrentDomain.GetAssemblies()
+        var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies()
             .Where(x => name != null && x.FullName != null && x.FullName.Contains(name))
             .ToArray();
 
-        return new[] { current }.Union(assms).ToArray();
+        return new[] { current }.Union(appDomainAssemblies).ToArray();
     }
 }
