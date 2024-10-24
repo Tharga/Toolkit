@@ -1,0 +1,6 @@
+@Tharga.WebApiSample_HostAddress = http://localhost:5205
+
+GET {{Tharga.WebApiSample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
