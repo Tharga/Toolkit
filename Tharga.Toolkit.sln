@@ -21,11 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tharga.Test.Toolkit", "Thar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tharga.Toolkit.TimerJob", "Tharga.Toolkit.TimerJob\Tharga.Toolkit.TimerJob.csproj", "{5330FD3E-7C03-4802-86AB-800D25F9E305}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tharga.ApiToolkit", "Tharga.ApiToolkit\Tharga.ApiToolkit.csproj", "{1DBB3319-5DFF-42EB-9240-45B328DB780D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tharga.Toolkit.Api", "Tharga.Toolkit.Api\Tharga.Toolkit.Api.csproj", "{1DBB3319-5DFF-42EB-9240-45B328DB780D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{8D2BC459-FF00-496A-82E5-CF49E9B52535}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tharga.WebApiSample", "Tharga.WebApiSample\Tharga.WebApiSample.csproj", "{509FC9F6-47D6-4E75-B5A9-0387F924C4FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tharga.WebApiSample", "Tharga.WebApiSample\Tharga.WebApiSample.csproj", "{509FC9F6-47D6-4E75-B5A9-0387F924C4FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

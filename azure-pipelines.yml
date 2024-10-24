@@ -83,11 +83,18 @@ stages:
         packagesToPack: '**/Tharga.Test.Toolkit.csproj'
         versioningScheme: 'byBuildNumber'
 
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Pack Tharga.Toolkit.TimerJob'
+    #   inputs:
+    #     command: 'pack'
+    #     packagesToPack: '**/Tharga.Toolkit.TimerJob.csproj'
+    #     versioningScheme: 'byBuildNumber'
+
     - task: DotNetCoreCLI@2
-      displayName: 'Pack Tharga.Toolkit.TimerJob'
+      displayName: 'Pack Tharga.Toolkit.Api'
       inputs:
         command: 'pack'
-        packagesToPack: '**/Tharga.Toolkit.TimerJob.csproj'
+        packagesToPack: '**/Tharga.Toolkit.Api.csproj'
         versioningScheme: 'byBuildNumber'
 
     #- task: DotNetCoreCLI@2
