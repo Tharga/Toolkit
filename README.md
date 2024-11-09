@@ -1,4 +1,8 @@
 # Tharga Toolkit
+[![NuGet](https://img.shields.io/nuget/v/Tharga.Toolkit)](https://www.nuget.org/packages/Tharga.Toolkit)
+![Nuget](https://img.shields.io/nuget/dt/Tharga.Toolkit)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub repo Issues](https://img.shields.io/github/issues/Tharga/Toolkit?style=flat&logo=github&logoColor=red&label=Issues)](https://github.com/Tharga/Toolkit/issues?q=is%3Aopen)
 
 This project contains the following nuget packages that can be downloaded from nuget.org.
 - [Tharga.Toolkit.Standard](https://www.nuget.org/packages/Tharga.Toolkit.Standard)
