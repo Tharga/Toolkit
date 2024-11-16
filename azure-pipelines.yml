@@ -1,7 +1,7 @@
 trigger:
 - master
 
-name: 1.11.$(Rev:r)
+name: 1.12.$(Rev:r)
 
 pool:
   vmImage: 'windows-latest'
@@ -20,9 +20,9 @@ stages:
 
     steps:
     - task: UseDotNet@2
-      displayName: 'Use .NET 8'
+      displayName: 'Use .NET 9'
       inputs:
-        version: 8.0.x
+        version: 9.0.x
         includePreviewVersions: false
 
     - task: NuGetToolInstaller@1
@@ -81,13 +81,6 @@ stages:
       inputs:
         command: 'pack'
         packagesToPack: '**/Tharga.Test.Toolkit.csproj'
-        versioningScheme: 'byBuildNumber'
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Pack Tharga.Toolkit.TimerJob'
-      inputs:
-        command: 'pack'
-        packagesToPack: '**/Tharga.Toolkit.TimerJob.csproj'
         versioningScheme: 'byBuildNumber'
 
     #- task: DotNetCoreCLI@2

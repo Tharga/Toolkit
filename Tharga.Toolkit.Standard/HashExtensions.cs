@@ -8,26 +8,14 @@ namespace Tharga.Toolkit
     {
         public enum Style
         {
-            Regular,
-            Base64
-        }
-
-        [Obsolete("Use ToHash with style.")]
-        public static string ToHash(this Uri item)
-        {
-            return ToHash(item, Style.Regular);
+            Base64,
+            Legacy,
         }
 
         public static string ToHash(this Uri item, Style style)
         {
             if (item == null) return null;
             return ToHash(item.OriginalString, style);
-        }
-
-        [Obsolete("Use ToHash with style.")]
-        public static string ToHash(this string item)
-        {
-            return ToHash(item, Style.Regular);
         }
 
         public static string ToHash(this string item, Style style)
@@ -41,12 +29,6 @@ namespace Tharga.Toolkit
             return data.ToHash(style);
         }
 
-        [Obsolete("Use ToHash with style.")]
-        public static string ToHash(this byte[] item)
-        {
-            return ToHash(item, Style.Regular);
-        }
-
         public static string ToHash(this byte[] item, Style style)
         {
             using (var md5 = MD5.Create())
@@ -54,12 +36,6 @@ namespace Tharga.Toolkit
                 var hash = md5.ComputeHash(item);
                 return Format(style, hash);
             }
-        }
-
-        [Obsolete("Use ToSecureHash with style.")]
-        public static string ToSecureHash(this string item, string salt)
-        {
-            return ToSecureHash(item, salt, Style.Regular);
         }
 
         public static string ToSecureHash(this string item, string salt, Style style)
@@ -74,12 +50,6 @@ namespace Tharga.Toolkit
             return data.ToSecureHash(saltBytes, style);
         }
 
-        [Obsolete("Use ToSecureHash with style.")]
-        public static string ToSecureHash(this byte[] item, byte[] salt)
-        {
-            return ToSecureHash(item, salt, Style.Regular);
-        }
-
         public static string ToSecureHash(this byte[] item, byte[] salt, Style style)
         {
             var pbkdf2 = new Rfc2898DeriveBytes(item, salt, 5000);
@@ -92,7 +62,7 @@ namespace Tharga.Toolkit
         {
             switch (style)
             {
-                case Style.Regular:
+                case Style.Legacy:
                     return BitConverter.ToString(hash).Replace("-", "");
                 case Style.Base64:
                     return Convert.ToBase64String(hash);

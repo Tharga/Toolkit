@@ -1,6 +1,5 @@
 using System;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Xunit;
 
 namespace Tharga.Toolkit.Tests;

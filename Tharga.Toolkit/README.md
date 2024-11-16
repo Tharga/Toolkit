@@ -2,4 +2,15 @@
 
 Have features for Assembly and Types along with features from the dependent package.
 
+### Features
+- Compare
+- ManagedTimer
+- DateTimeExtensions
+- ListExtensions
+- HashExtensions
+- EnumExtensions
+- Enumeration
+- Luhn
+- Assembly and TypeService Service
+
 Read more on the project site.
