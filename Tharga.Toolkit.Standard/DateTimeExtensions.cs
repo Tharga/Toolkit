@@ -4,6 +4,28 @@ namespace Tharga.Toolkit
 {
     public static class DateTimeExtensions
     {
+        public static string ToLocalDateString(this DateTime? item, string format = "yyyy-MM-dd")
+        {
+            if (item == null) return string.Empty;
+            return item.Value.ToLocalTime().ToString(format);
+        }
+
+        public static string ToLocalDateString(this DateTime item, string format = "yyyy-MM-dd")
+        {
+            return item.ToLocalTime().ToString(format);
+        }
+
+        public static string ToLocalTimeString(this DateTime? item, string format = "HH:mm:ss")
+        {
+            if (item == null) return string.Empty;
+            return item.Value.ToLocalTime().ToString(format);
+        }
+
+        public static string ToLocalTimeString(this DateTime item, string format = "HH:mm:ss")
+        {
+            return item.ToLocalTime().ToString(format);
+        }
+
         public static string ToLocalDateTimeString(this DateTime? item, string format = "yyyy-MM-dd HH:mm:ss")
         {
             if (item == null) return string.Empty;
@@ -62,7 +84,8 @@ namespace Tharga.Toolkit
             var future = false;
             if (duration == TimeSpan.Zero)
             {
-                return options.StringOptions.Now;
+                if (!options.StringOptions.Now.TryGetValue(options.MinUnit, out var nowTerm)) throw new ArgumentException($"Cannot find '{nameof(DurationOptions.StringOptions.Now)}' term for {duration}.");
+                return nowTerm;
             }
 
             if (duration > TimeSpan.Zero)
@@ -80,47 +103,47 @@ namespace Tharga.Toolkit
 
             if (duration.TotalSeconds < 1 || options.MaxUnit == EUnit.Millisecond)
             {
-                if (options.MinUnit < EUnit.Millisecond) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Millisecond) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Millisecond)}{postString}";
             }
 
             if (duration.TotalMinutes < 1 || options.MaxUnit == EUnit.Second)
             {
-                if (options.MinUnit < EUnit.Second) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Second) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Second)}{postString}";
             }
 
             if (duration.TotalHours < 1 || options.MaxUnit == EUnit.Minute)
             {
-                if (options.MinUnit < EUnit.Minute) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Minute) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Minute)}{postString}";
             }
 
             if (duration.TotalDays < 1 || options.MaxUnit == EUnit.Hour)
             {
-                if (options.MinUnit < EUnit.Hour) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Hour) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Hour)}{postString}";
             }
 
             if (duration.TotalDays < 7 || options.MaxUnit == EUnit.Day)
             {
-                if (options.MinUnit < EUnit.Day) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Day) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Day)}{postString}";
             }
 
             if (duration.TotalDays < 30 || options.MaxUnit == EUnit.Week)
             {
-                if (options.MinUnit < EUnit.Week) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Week) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Week)}{postString}";
             }
 
             if (duration.TotalDays < 365 || options.MaxUnit == EUnit.Month)
             {
-                if (options.MinUnit < EUnit.Month) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+                if (options.MinUnit < EUnit.Month) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
                 return $"{preString}{duration.ToStringDurationString(options.StringOptions.Month)}{postString}";
             }
 
-            if (options.MinUnit < EUnit.Year) return future ? options.StringOptions.Soon : options.StringOptions.Resent;
+            if (options.MinUnit < EUnit.Year) return future ? options.StringOptions.Soon[options.MinUnit] : options.StringOptions.Resent[options.MinUnit];
             return $"{preString}{duration.ToStringDurationString(options.StringOptions.Year)}{postString}";
         }
 

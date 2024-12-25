@@ -15,8 +15,8 @@ namespace Tharga.Toolkit
         public (EUnit, UnitOption) Week => (EUnit.Week, UnitOptions[EUnit.Week]);
         public (EUnit, UnitOption) Month => (EUnit.Month, UnitOptions[EUnit.Month]);
         public (EUnit, UnitOption) Year => (EUnit.Year, UnitOptions[EUnit.Year]);
-        public string Now { get; set; }
-        public string Resent { get; set; }
-        public string Soon { get; set; }
+        public Dictionary<EUnit, string> Now { get; set; }
+        public Dictionary<EUnit, string> Resent { get; set; }
+        public Dictionary<EUnit, string> Soon { get; set; }
     }
 }

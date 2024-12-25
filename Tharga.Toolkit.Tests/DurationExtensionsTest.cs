@@ -56,10 +56,10 @@ public class DurationExtensionsTest
     [InlineData(3600000, EUnit.Day, "Soon")]
     [InlineData(-86400000, EUnit.Week, "Resent")]
     [InlineData(86400000, EUnit.Week, "Soon")]
-    [InlineData(-604800000, EUnit.Month, "Resent")]
-    [InlineData(604800000, EUnit.Month, "Soon")]
-    [InlineData(-2592000000, EUnit.Year, "Resent")]
-    [InlineData(2592000000, EUnit.Year, "Soon")]
+    [InlineData(-604800000, EUnit.Month, "This month")]
+    [InlineData(604800000, EUnit.Month, "This month")]
+    [InlineData(-2592000000, EUnit.Year, "This year")]
+    [InlineData(2592000000, EUnit.Year, "This year")]
     public void ToShortDurationString(long milliseconds, EUnit minUnit, string expected)
     {
         //Arrange
@@ -120,4 +120,51 @@ public class DurationExtensionsTest
         //Assert
         result.Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData(-800, "2 years ago")]
+    [InlineData(-365, "1 year ago")]
+    [InlineData(-300, "This year")]
+    [InlineData(-1, "This year")]
+    [InlineData(0, "This year")]
+    [InlineData(1, "This year")]
+    [InlineData(300, "This year")]
+    [InlineData(365, "In 1 year")]
+    [InlineData(800, "In 2 years")]
+    public void ToDurationString_Year(int dayOffset, string expected)
+    {
+        //Arrange
+        var utcNow = DateTime.UtcNow;
+        var dateTime = utcNow.AddDays(dayOffset);
+
+        //Act
+        var result = dateTime.ToDurationString(new DurationOptions { MaxUnit = EUnit.Year, MinUnit = EUnit.Year, BaseValue = utcNow });
+
+        //Assert
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(-70, "2 months ago")]
+    [InlineData(-31, "1 month ago")]
+    [InlineData(-10, "This month")]
+    [InlineData(-1, "This month")]
+    [InlineData(0, "This month")]
+    [InlineData(1, "This month")]
+    [InlineData(10, "This month")]
+    [InlineData(31, "In 1 month")]
+    [InlineData(70, "In 2 months")]
+    public void ToDurationString_Month(int dayOffset, string expected)
+    {
+        //Arrange
+        var utcNow = DateTime.UtcNow;
+        var dateTime = utcNow.AddDays(dayOffset);
+
+        //Act
+        var result = dateTime.ToDurationString(new DurationOptions { MaxUnit = EUnit.Month, MinUnit = EUnit.Month, BaseValue = utcNow });
+
+        //Assert
+        result.Should().Be(expected);
+    }
+
 }
