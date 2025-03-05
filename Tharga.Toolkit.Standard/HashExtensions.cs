@@ -9,7 +9,9 @@ namespace Tharga.Toolkit
         public enum Style
         {
             Base64,
+            [Obsolete("Use Hex instead")]
             Legacy,
+            Hex
         }
 
         public static string ToHash(this Uri item, Style style)
@@ -63,6 +65,7 @@ namespace Tharga.Toolkit
             switch (style)
             {
                 case Style.Legacy:
+                case Style.Hex:
                     return BitConverter.ToString(hash).Replace("-", "");
                 case Style.Base64:
                     return Convert.ToBase64String(hash);
