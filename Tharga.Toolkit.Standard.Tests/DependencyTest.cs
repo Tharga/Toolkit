@@ -9,7 +9,7 @@ namespace Tharga.Toolkit.Standard.Tests;
 public class DependencyTest : DependencyTestBase
 {
     public DependencyTest()
-        : base(Assembly.GetAssembly(typeof(ListExtensions)), GetStandardAssembliesToIgnore().Union(new[] { "mscorlib" }).ToArray())
+        : base(Assembly.GetAssembly(typeof(EnumerableExtensions)), GetStandardAssembliesToIgnore().Union(new[] { "mscorlib" }).ToArray())
     {
     }
 

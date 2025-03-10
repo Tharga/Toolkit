@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tharga.Toolkit
 {
     public static class DurationStringOptionsExtensions
     {
         /// <summary>
-        /// The culture 'en-US' will return English, this is default.
-        /// sv-SE will return Swedish.
+        ///     Get by culture.
+        ///     The culture 'en-US' will return English, this is default.
+        ///     sv-SE will return Swedish.
         /// </summary>
         /// <param name="culture"></param>
         /// <returns></returns>
@@ -16,9 +18,23 @@ namespace Tharga.Toolkit
         {
             var parts = culture.Split('-');
 
-            switch (parts[0].ToLower())
+            if (!Enum.TryParse<Language>(parts.First(), true, out var language))
+                throw new InvalidOperationException($"Unknown culture '{culture}'.");
+
+            return Get(language);
+        }
+
+        /// <summary>
+        ///     Get by language.
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static DurationStringOptions Get(Language language)
+        {
+            switch (language)
             {
-                case "en":
+                case Language.En:
                     return new DurationStringOptions
                     {
                         PreString = "In",
@@ -34,11 +50,41 @@ namespace Tharga.Toolkit
                             { EUnit.Month, new UnitOption { Value = "month", PluralSign = "s" } },
                             { EUnit.Year, new UnitOption { Value = "year", PluralSign = "s" } }
                         },
-                        Now = "Now",
-                        Resent = "Resent",
-                        Soon = "Soon"
+                        Now = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Now" },
+                            { EUnit.Second, "Now" },
+                            { EUnit.Minute, "Now" },
+                            { EUnit.Hour, "Now" },
+                            { EUnit.Day, "Today" },
+                            { EUnit.Week, "This week" },
+                            { EUnit.Month, "This month" },
+                            { EUnit.Year, "This year" },
+                        },
+                        Resent = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Resent" },
+                            { EUnit.Second, "Resent" },
+                            { EUnit.Minute, "Resent" },
+                            { EUnit.Hour, "Resent" },
+                            { EUnit.Day, "Resent" },
+                            { EUnit.Week, "Resent" },
+                            { EUnit.Month, "This month" },
+                            { EUnit.Year, "This year" },
+                        },
+                        Soon = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Soon" },
+                            { EUnit.Second, "Soon" },
+                            { EUnit.Minute, "Soon" },
+                            { EUnit.Hour, "Soon" },
+                            { EUnit.Day, "Soon" },
+                            { EUnit.Week, "Soon" },
+                            { EUnit.Month, "This month" },
+                            { EUnit.Year, "This year" },
+                        },
                     };
-                case "sv":
+                case Language.Sv:
                     return new DurationStringOptions
                     {
                         PreString = "Om",
@@ -54,12 +100,42 @@ namespace Tharga.Toolkit
                             { EUnit.Month, new UnitOption { Value = "månad", PluralSign = "er" } },
                             { EUnit.Year, new UnitOption { Value = "år" } }
                         },
-                        Now = "Nu",
-                        Resent = "Nyss",
-                        Soon = "Snart"
+                        Now = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Nu" },
+                            { EUnit.Second, "Nu" },
+                            { EUnit.Minute, "Nu" },
+                            { EUnit.Hour, "Nu" },
+                            { EUnit.Day, "Idag" },
+                            { EUnit.Week, "Denna vecka" },
+                            { EUnit.Month, "Denna månad" },
+                            { EUnit.Year, "I år" },
+                        },
+                        Resent = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Nyss" },
+                            { EUnit.Second, "Nyss" },
+                            { EUnit.Minute, "Nyss" },
+                            { EUnit.Hour, "Nyss" },
+                            { EUnit.Day, "Nyss" },
+                            { EUnit.Week, "Nyss" },
+                            { EUnit.Month, "Nyss" },
+                            { EUnit.Year, "Nyss" },
+                        },
+                        Soon = new Dictionary<EUnit, string>
+                        {
+                            { EUnit.Millisecond, "Snart" },
+                            { EUnit.Second, "Snart" },
+                            { EUnit.Minute, "Snart" },
+                            { EUnit.Hour, "Snart" },
+                            { EUnit.Day, "Snart" },
+                            { EUnit.Week, "Snart" },
+                            { EUnit.Month, "Snart" },
+                            { EUnit.Year, "Snart" },
+                        },
                     };
                 default:
-                    throw new ArgumentOutOfRangeException($"Unknown culture '{culture}'.");
+                    throw new ArgumentOutOfRangeException($"Unknown language '{language}'.");
             }
         }
     }
