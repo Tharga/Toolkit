@@ -4,21 +4,17 @@ using System.Linq;
 
 namespace Tharga.Toolkit
 {
-    public static class ListExtensions
+    public static class EnumerableExtensions
     {
         private static readonly Random Rng = new Random();
 
         public static T TakeRandom<T>(this IEnumerable<T> values)
         {
-            var list = values.ToList();
+            if (values == null) return default;
+            var list = values.ToArray();
             if (!list.Any()) return default;
-            var index = GetRandomInt(0, list.Count);
+            var index = Rng.Next(list.Length);
             return list[index];
-        }
-
-        private static int GetRandomInt(int min = 0, int max = 10000000)
-        {
-            return Rng.Next(max - min) + min;
         }
 
         public static IEnumerable<T> TakeAllButFirst<T>(this IEnumerable<T> values)
@@ -29,10 +25,10 @@ namespace Tharga.Toolkit
         public static IEnumerable<T> TakeAllButLast<T>(this IEnumerable<T> values)
         {
             if (values == null) return null;
-            return TakeAllButLastEx(values);
+            return TakeAllButLastInternal(values);
         }
 
-        private static IEnumerable<T> TakeAllButLastEx<T>(IEnumerable<T> values)
+        private static IEnumerable<T> TakeAllButLastInternal<T>(IEnumerable<T> values)
         {
             using (var it = values.GetEnumerator())
             {
@@ -57,6 +53,19 @@ namespace Tharga.Toolkit
             return values?.Select((v, i) => new { v, groupIndex = i / chunkSize })
                 .GroupBy(x => x.groupIndex)
                 .Select(g => g.Select(x => x.v));
+        }
+
+        public static bool IsNullOrEmpty<T>(IEnumerable<T> values)
+        {
+            if (values == null) return true;
+            if (!values.Any()) return true;
+            return false;
+        }
+
+        public static IEnumerable<T> EmptyIfNull<T>(IEnumerable<T> items)
+        {
+            if (items == null) return Enumerable.Empty<T>();
+            return items;
         }
     }
 }
