@@ -17,6 +17,11 @@ namespace Tharga.Toolkit
             return list[index];
         }
 
+        public static IEnumerable<T> RandomOrder<T>(this IEnumerable<T> values)
+        {
+            return values.OrderBy(_ => Rng.Next());
+        }
+
         public static IEnumerable<T> TakeAllButFirst<T>(this IEnumerable<T> values)
         {
             return values?.Skip(1);
