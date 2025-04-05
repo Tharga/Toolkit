@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Tharga.Toolkit
 {
-    public static class EnumerableExtensions
+    public static class EnumerableExtensionsAsync
     {
         private static readonly Random _rng = new();
 
