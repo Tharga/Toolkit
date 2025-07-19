@@ -50,6 +50,17 @@ public class AssemblyService : IAssemblyService
     }
 
     /// <summary>
+    /// Use specific class to find the current assembly type.
+    /// </summary>
+    /// <typeparam name="TAssemblyType">Type for the assembly to be used as entry point to look for types.</typeparam>
+    /// <returns></returns>
+    public static IEnumerable<Assembly> GetAssemblies<TAssemblyType>()
+    {
+        var current = Assembly.GetAssembly(typeof(TAssemblyType));
+        return GetAssemblies(null, current);
+    }
+
+    /// <summary>
     /// Get all types based on the provided type and parameters.
     /// </summary>
     /// <typeparam name="TBaseType">Type, basetype of interface.</typeparam>
@@ -79,11 +90,11 @@ public class AssemblyService : IAssemblyService
         return types;
     }
 
-    private static IEnumerable<Assembly> GetAssemblies(IEnumerable<Assembly> assemblies)
+    private static IEnumerable<Assembly> GetAssemblies(IEnumerable<Assembly> assemblies, Assembly current = null)
     {
         if (assemblies != null) return assemblies.ToArray();
 
-        var current = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        current ??= Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         var name = current.GetName().Name?.Split('.').First();
 
         var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies()
