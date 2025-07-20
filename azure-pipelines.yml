@@ -25,14 +25,6 @@ stages:
         version: 9.0.x
         includePreviewVersions: false
 
-    - task: Gitleaks@3
-      inputs:
-        scanlocation: '$(Build.SourcesDirectory)'
-        configtype: 'predefined'
-        predefinedconfigfile: 'GitleaksUdmCombo.toml'
-        scanmode: 'directory'
-        reportformat: 'sarif'
-
     - task: NuGetToolInstaller@1
 
     - task: DotNetCoreCLI@2

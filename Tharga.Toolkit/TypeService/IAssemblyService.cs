@@ -7,7 +7,7 @@ namespace Tharga.Toolkit.TypeService;
 public interface IAssemblyService
 {
     /// <summary>
-    /// Loads types into the cache. Then the types can be fetched using the GetTypes (without a filter).
+    /// Loads types into the cache. Then the types can be fetched using the GetServiceTypePairs (without a filter).
     /// See 'GetAssemblies' in 'AssemblyService' for default behaviour.
     /// </summary>
     /// <param name="cacheKey">Unique key for the specific cache.</param>
