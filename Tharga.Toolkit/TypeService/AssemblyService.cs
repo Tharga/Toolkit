@@ -8,7 +8,7 @@ namespace Tharga.Toolkit.TypeService;
 
 public class AssemblyService : IAssemblyService
 {
-    private static readonly ConcurrentDictionary<string, TypeInfo[]> Cache = new();
+    private static readonly ConcurrentDictionary<string, TypeInfo[]> _cache = new();
 
     internal AssemblyService()
     {
@@ -17,12 +17,12 @@ public class AssemblyService : IAssemblyService
     public void LoadTypes(string cacheKey, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null)
     {
         var data = GetTypes(filter, assemblies, baseAssembly).ToArray();
-        Cache.AddOrUpdate(cacheKey, data, (_, _) => data);
+        _cache.AddOrUpdate(cacheKey, data, (_, _) => data);
     }
 
     public TypeInfo[] GetTypes(string cacheKey, Func<TypeInfo, bool> filter = null, Assembly baseAssembly = null)
     {
-        if (Cache.TryGetValue(cacheKey, out var data))
+        if (_cache.TryGetValue(cacheKey, out var data))
         {
             return data;
         }
@@ -30,7 +30,7 @@ public class AssemblyService : IAssemblyService
         if (filter != null)
         {
             LoadTypes(cacheKey, filter, null, baseAssembly);
-            if (Cache.TryGetValue(cacheKey, out data))
+            if (_cache.TryGetValue(cacheKey, out data))
             {
                 return data;
             }

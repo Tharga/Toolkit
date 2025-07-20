@@ -63,7 +63,7 @@ public class AssemblyServiceTests
         var types = AssemblyService.GetTypes(baseAssembly: Assembly.GetAssembly(typeof(TypeMissingException)));
 
         //Assert
-        types.Should().HaveCount(138);
+        types.Should().HaveCount(140);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class AssemblyServiceTests
 
         //Assert
         var types = sut.GetTypes("A");
-        types.Should().HaveCount(138);
+        types.Should().HaveCount(140);
     }
 
     [Fact]
@@ -90,8 +90,8 @@ public class AssemblyServiceTests
         var types = sut.GetTypes("A", _ => true, baseAssembly: Assembly.GetAssembly(typeof(TypeMissingException)));
 
         //Assert
-        types.Should().HaveCount(138);
-        sut.GetTypes("A").Should().HaveCount(138);
+        types.Should().HaveCount(140);
+        sut.GetTypes("A").Should().HaveCount(140);
     }
 
 }
