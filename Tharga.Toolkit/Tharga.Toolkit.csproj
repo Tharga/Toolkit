@@ -32,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="Tharga.Toolkit.Tests" />
 		<InternalsVisibleTo Include="Tharga.Toolkit.TimerJob" />
 		<InternalsVisibleTo Include="Tharga.MongoDB" />
 	</ItemGroup>

@@ -14,13 +14,13 @@ public class AssemblyService : IAssemblyService
     {
     }
 
-    public void LoadTypes(string cacheKey, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null)
+    public void LoadTypes(string cacheKey, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null)
     {
-        var data = GetTypes(filter, assemblies).ToArray();
+        var data = GetTypes(filter, assemblies, baseAssembly).ToArray();
         _cache.AddOrUpdate(cacheKey, data, (_, _) => data);
     }
 
-    public TypeInfo[] GetTypes(string cacheKey, Func<TypeInfo, bool> filter = null)
+    public TypeInfo[] GetTypes(string cacheKey, Func<TypeInfo, bool> filter = null, Assembly baseAssembly = null)
     {
         if (_cache.TryGetValue(cacheKey, out var data))
         {
@@ -29,7 +29,7 @@ public class AssemblyService : IAssemblyService
 
         if (filter != null)
         {
-            LoadTypes(cacheKey, filter);
+            LoadTypes(cacheKey, filter, null, baseAssembly);
             if (_cache.TryGetValue(cacheKey, out data))
             {
                 return data;
@@ -41,36 +41,47 @@ public class AssemblyService : IAssemblyService
 
     /// <summary>
     /// Get all assemblies in the current app domain based on the first part of the namespace from the EntryAssembly or ExecutingAssembly.
-    /// Example. 'Namespace [FirstPart].[SecondPart] will return all assemblies that starts with [FirstPart].'
+    /// Example: Namespace [FirstPart].[SecondPart] will return all assemblies that starts with [FirstPart].
     /// </summary>
     /// <returns></returns>
     public static IEnumerable<Assembly> GetAssemblies()
     {
-        return GetAssemblies(null);
+        return GetAssemblies(null, null);
     }
 
     /// <summary>
-    /// Use specific class to find the current assembly type.
+    /// Use specific class to find the base assembly where to start looking for assemblies.
     /// </summary>
     /// <typeparam name="TAssemblyType">Type for the assembly to be used as entry point to look for types.</typeparam>
     /// <returns></returns>
     public static IEnumerable<Assembly> GetAssemblies<TAssemblyType>()
     {
-        var current = Assembly.GetAssembly(typeof(TAssemblyType));
-        return GetAssemblies(null, current);
+        var baseAssembly = Assembly.GetAssembly(typeof(TAssemblyType));
+        return GetAssemblies(null, baseAssembly);
+    }
+
+    /// <summary>
+    /// Use specific class to find the baseAssembly assembly type.
+    /// </summary>
+    /// <param name="baseAssembly">Assembly to be used as entry point to look for types. Default is EntryAssembly or ExecutingAssembly.</param>
+    /// <returns></returns>
+    public static IEnumerable<Assembly> GetAssemblies(Assembly baseAssembly)
+    {
+        return GetAssemblies(null, baseAssembly);
     }
 
     /// <summary>
     /// Get all types based on the provided type and parameters.
     /// </summary>
-    /// <typeparam name="TBaseType">Type, basetype of interface.</typeparam>
+    /// <typeparam name="TBaseType">Type, base type of interface.</typeparam>
     /// <param name="filter">Filter for what types to return.</param>
     /// <param name="assemblies">Assemblies where to find the types. See 'GetAssemblies' for default behaviour.</param>
+    /// <param name="baseAssembly">Assembly to be used as entry point to look for types. Default is EntryAssembly or ExecutingAssembly.</param>
     /// <returns></returns>
-    public static IEnumerable<TypeInfo> GetTypes<TBaseType>(Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null)
+    public static IEnumerable<TypeInfo> GetTypes<TBaseType>(Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null)
     {
-        var assms = GetAssemblies(assemblies);
-        var types = assms.SelectMany(x => x.DefinedTypes)
+        var asm = GetAssemblies(assemblies, baseAssembly);
+        var types = asm.SelectMany(x => x.DefinedTypes)
             .Where(x => x.IsOfType<TBaseType>())
             .Where(x => filter?.Invoke(x) ?? true);
         return types;
@@ -81,26 +92,27 @@ public class AssemblyService : IAssemblyService
     /// </summary>
     /// <param name="filter">Filter for what types to return.</param>
     /// <param name="assemblies">Assemblies where to find the types. See 'GetAssemblies' for default behaviour.</param>
+    /// <param name="baseAssembly">Assembly to be used as entry point to look for types. Default is EntryAssembly or ExecutingAssembly.</param>
     /// <returns></returns>
-    public static IEnumerable<TypeInfo> GetTypes(Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null)
+    public static IEnumerable<TypeInfo> GetTypes(Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null)
     {
-        var assms = GetAssemblies(assemblies);
-        var types = assms.SelectMany(x => x.DefinedTypes)
+        var asm = GetAssemblies(assemblies, baseAssembly);
+        var types = asm.SelectMany(x => x.DefinedTypes)
             .Where(x => filter?.Invoke(x) ?? true);
         return types;
     }
 
-    private static IEnumerable<Assembly> GetAssemblies(IEnumerable<Assembly> assemblies, Assembly current = null)
+    private static IEnumerable<Assembly> GetAssemblies(IEnumerable<Assembly> assemblies, Assembly baseAssembly = null)
     {
         if (assemblies != null) return assemblies.ToArray();
 
-        current ??= Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-        var name = current.GetName().Name?.Split('.').First();
+        baseAssembly ??= Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+        var name = baseAssembly.GetName().Name?.Split('.').First();
 
         var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies()
             .Where(x => name != null && x.FullName != null && x.FullName.Contains(name))
             .ToArray();
 
-        return new[] { current }.Union(appDomainAssemblies).ToArray();
+        return new[] { baseAssembly }.Union(appDomainAssemblies).ToArray();
     }
 }

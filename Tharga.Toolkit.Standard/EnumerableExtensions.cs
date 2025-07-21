@@ -6,20 +6,20 @@ namespace Tharga.Toolkit
 {
     public static class EnumerableExtensions
     {
-        private static readonly Random Rng = new Random();
+        private static readonly Lazy<Random> _rng = new Lazy<Random>(() => new Random());
 
         public static T TakeRandom<T>(this IEnumerable<T> values)
         {
             if (values == null) return default;
             var list = values.ToArray();
             if (!list.Any()) return default;
-            var index = Rng.Next(list.Length);
+            var index = _rng.Value.Next(list.Length);
             return list[index];
         }
 
         public static IEnumerable<T> RandomOrder<T>(this IEnumerable<T> values)
         {
-            return values.OrderBy(_ => Rng.Next());
+            return values.OrderBy(_ => _rng.Value.Next());
         }
 
         public static IEnumerable<T> TakeAllButFirst<T>(this IEnumerable<T> values)
