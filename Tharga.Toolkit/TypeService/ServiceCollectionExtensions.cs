@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
     /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
     /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
     /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
-    public static void Add(this IServiceCollection services, ERegistrationType registrationType, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    public static void Add(this IServiceCollection services, ERegistrationType registrationType, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         AddByType(services, registrationType, filter, assemblies, baseAssembly, findInterface);
     }
@@ -34,51 +34,119 @@ public static class ServiceCollectionExtensions
     /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
     /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
     /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
-    public static void Add<TServiceBase>(this IServiceCollection services, ERegistrationType registrationType, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    public static void Add<TServiceBase>(this IServiceCollection services, ERegistrationType registrationType, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var composedFilter = new Func<TypeInfo, bool>(x => x.IsOfType<TServiceBase>() && (filter?.Invoke(x) ?? true));
         AddByType(services, registrationType, composedFilter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddTransient(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds transient registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddTransient(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         AddByType(services, ERegistrationType.Transient, filter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddTransient<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds transient registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <typeparam name="TServiceBase"></typeparam>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddTransient<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var composedFilter = new Func<TypeInfo, bool>(x => x.IsOfType<TServiceBase>() && (filter?.Invoke(x) ?? true));
         AddByType(services, ERegistrationType.Transient, composedFilter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddScoped(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds scoped registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddScoped(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         AddByType(services, ERegistrationType.Scoped, filter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddScoped<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds scoped registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <typeparam name="TServiceBase"></typeparam>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddScoped<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var composedFilter = new Func<TypeInfo, bool>(x => x.IsOfType<TServiceBase>() && (filter?.Invoke(x) ?? true));
         AddByType(services, ERegistrationType.Scoped, composedFilter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddSingleton(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds singleton registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddSingleton(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         AddByType(services, ERegistrationType.Singleton, filter, assemblies, baseAssembly, findInterface);
     }
 
-    public static void AddSingleton<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Adds singleton registration to the IOC by using a type and optional filter.
+    /// </summary>
+    /// <typeparam name="TServiceBase"></typeparam>
+    /// <param name="services"></param>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    public static void AddSingleton<TServiceBase>(this IServiceCollection services, Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var composedFilter = new Func<TypeInfo, bool>(x => x.IsOfType<TServiceBase>() && (filter?.Invoke(x) ?? true));
         AddByType(services, ERegistrationType.Singleton, composedFilter, assemblies, baseAssembly, findInterface);
     }
 
-    public static IEnumerable<(Type ServiceType, Type ImplementationType)> GetServiceTypePairs<TServiceBase>(Func<TypeInfo, bool> filter = null, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
+    /// <summary>
+    /// Returns pairs with service types and implementation types. For service type an interface is returned, if there is one, otherwise the implementation is returned.
+    /// </summary>
+    /// <typeparam name="TServiceBase"></typeparam>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    /// <returns></returns>
+    public static IEnumerable<(Type ServiceType, Type ImplementationType)> GetServiceTypePairs<TServiceBase>(Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var composedFilter = new Func<TypeInfo, bool>(x => x.IsOfType<TServiceBase>() && (filter?.Invoke(x) ?? true));
         return GetServiceTypePairs(composedFilter, assemblies, baseAssembly, findInterface);
     }
 
+    /// <summary>
+    /// Returns pairs with service types and implementation types. For service type an interface is returned, if there is one, otherwise the implementation is returned.
+    /// </summary>
+    /// <param name="filter">The actual type filter. Ex. x => x.IsOfType(typeof(MyService))</param>
+    /// <param name="assemblies">An optional list of assemblies of where to look for types. If not provided the baseAssembly, or default will be used.</param>
+    /// <param name="baseAssembly">Provide a base assembly of where to start looking for types. By default, EntryAssembly or ExecutingAssembly will be used.</param>
+    /// <param name="findInterface">If true, interface types will be automatically found based on a concrete type. If false, the concrete type is registered without an interface.</param>
+    /// <returns></returns>
     public static IEnumerable<(Type ServiceType, Type ImplementationType)> GetServiceTypePairs(Func<TypeInfo, bool> filter, IEnumerable<Assembly> assemblies = null, Assembly baseAssembly = null, bool findInterface = true)
     {
         var assembliesArray = assemblies?.ToArray();
@@ -130,12 +198,24 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Returnes interfaces that direcly implements a type. If the interface is inherited it is not returned.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static Type[] GetDirectlyImplementedInterfaces(this Type type) =>
         type.GetInterfaces()
             .Where(i => !type.GetInterfaces().SelectMany(x => x.GetInterfaces()).Contains(i))
-            //.Where(i => !i.IsGenericType)
             .ToArray();
 
+    /// <summary>
+    /// Checks if an interface is directly implemented by a type.
+    /// If the type does not implement the interface or it is inherited, the method returns false.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="typeInterface"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public static bool IsInterfaceDirectlyImplemented(this Type type, Type typeInterface)
     {
         if (!typeInterface.IsInterface) throw new ArgumentException($"{typeInterface.FullName} is not an interface");

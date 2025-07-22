@@ -71,7 +71,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<IServiceInterface>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<IServiceInterface>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(1);
@@ -85,7 +85,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<ServiceWithBase>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<ServiceWithBase>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(1);
@@ -99,7 +99,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<ServiceBase>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<ServiceBase>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(3);
@@ -117,7 +117,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<IServiceInterface2>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<IServiceInterface2>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(1);
@@ -131,7 +131,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<IServiceInterface2>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)), findInterface: false);
+        _services.Object.Add<IServiceInterface2>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)), findInterface: false);
 
         //Assert
         _items.Should().HaveCount(1);
@@ -145,7 +145,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<ICommonServiceInterface>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<ICommonServiceInterface>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(2);
@@ -161,7 +161,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<ServiceWithTwoInterfaces>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<ServiceWithTwoInterfaces>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(2);
@@ -177,7 +177,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        _services.Object.Add<IRepository>(ERegistrationType.Transient, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
+        _services.Object.Add<IRepository>(ERegistrationType.Transient, _ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests)));
 
         //Assert
         _items.Should().HaveCount(2);
@@ -206,7 +206,7 @@ public class ServiceCollectionExtensionsTests
         //Arrange
 
         //Act
-        var types = ServiceCollectionExtensions.GetServiceTypePairs<ServiceBase>(baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests))).ToArray();
+        var types = ServiceCollectionExtensions.GetServiceTypePairs<ServiceBase>(_ => true, baseAssembly: Assembly.GetAssembly(typeof(ServiceCollectionExtensionsTests))).ToArray();
 
         //Assert
         types.Should().HaveCount(3);

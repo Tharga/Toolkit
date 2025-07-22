@@ -83,14 +83,6 @@ stages:
         packagesToPack: '**/Tharga.Test.Toolkit.csproj'
         versioningScheme: 'byBuildNumber'
 
-    #- task: DotNetCoreCLI@2
-    #  displayName: 'Push nuget packages locally'
-    #  inputs:
-    #    command: 'push'
-    #    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    #    nuGetFeedType: 'internal'
-    #    publishVstsFeed: 'df4b267e-c55c-4a36-8fe3-8e98d5d8dbbb/5cea672d-cb79-44f6-beb8-2eaba59e670d'
-
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifacts'
       inputs:
@@ -115,7 +107,7 @@ stages:
       displayName: 'Push nuget packages to nuget.org'
       inputs:
         command: 'push'
-        packagesToPush: '$(Pipeline.Workspace)/**/*.nupkg;!$(Pipeline.Workspace)/**/*.symbols.nupkg'
+        packagesToPush: '$(Pipeline.Workspace)/**/*.symbols.nupkg'
         nuGetFeedType: 'external'
         publishFeedCredentials: 'Nuget.org'
 
