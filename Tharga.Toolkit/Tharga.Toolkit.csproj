@@ -40,7 +40,6 @@
     <InternalsVisibleTo Include="Tharga.MongoDB" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tharga.Test.Toolkit\Tharga.Test.Toolkit.csproj" />
     <ProjectReference Include="..\Tharga.Toolkit.Standard\Tharga.Toolkit.Standard.csproj" />
   </ItemGroup>
 </Project>
