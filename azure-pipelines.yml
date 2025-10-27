@@ -104,7 +104,7 @@ stages:
       persistCredentials: true
 
     - task: NuGetCommand@2
-      displayName: 'Push nuget packages to nuget.org'
+      displayName: 'Push .nupkg to NuGet.org (with symbols)'
       inputs:
         command: 'push'
         packagesToPush: '$(Pipeline.Workspace)/**/*.symbols.nupkg'
