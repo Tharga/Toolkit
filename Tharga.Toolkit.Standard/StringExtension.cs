@@ -5,38 +5,6 @@ using System.Text;
 
 namespace Tharga.Toolkit
 {
-    public static class IntegerExtensions
-    {
-        public static string GetNameForNumber(int number)
-        {
-            switch (number)
-            {
-                case 1:
-                    return "Primary";
-                case 2:
-                    return "Secondary";
-                case 3:
-                    return "Tertiary";
-                case 4:
-                    return "Quaternary";
-                case 5:
-                    return "Quinary";
-                case 6:
-                    return "Senary";
-                case 7:
-                    return "Septenary";
-                case 8:
-                    return "Octonary";
-                case 9:
-                    return "Nonary";
-                case 10:
-                    return "Denary";
-                default:
-                    return $"Number {number}"; // fallback
-            }
-        }
-    }
-
     public static class StringExtension
     {
         public static string NullIfEmpty(this string item)
@@ -82,7 +50,7 @@ namespace Tharga.Toolkit
         /// <returns></returns>
         public static string RandomString(this int length, string availableCharacters = AlphaNumericCharacters)
         {
-            return RandomString(length, length, availableCharacters);
+            return GetRandomString(length, length, availableCharacters);
         }
 
         /// <summary>
@@ -95,10 +63,16 @@ namespace Tharga.Toolkit
         public static string Random(this string characters, int minLength = 8, int maxLength = 16)
         {
             var availableCharacters = new string(characters.Distinct().ToArray());
-            return RandomString(minLength, maxLength, availableCharacters);
+            return GetRandomString(minLength, maxLength, availableCharacters);
         }
 
+        [Obsolete("Use GetRandomString instead.")]
         public static string RandomString(int minLength = 8, int maxLength = 16, string availableCharacters = AlphaNumericCharacters)
+        {
+            return GetRandomString(minLength, maxLength, availableCharacters);
+        }
+
+        public static string GetRandomString(int minLength = 8, int maxLength = 16, string availableCharacters = AlphaNumericCharacters)
         {
             if (string.IsNullOrEmpty(availableCharacters)) throw new ArgumentException("Character set cannot be null or empty.", nameof(availableCharacters));
 
