@@ -1,7 +1,7 @@
 trigger:
 - master
 
-name: 1.13.$(Rev:r)
+name: 1.14.$(Rev:r)
 
 pool:
   vmImage: 'windows-latest'
@@ -39,7 +39,7 @@ stages:
       inputs:
         command: 'build'
         projects: '**/*.csproj'
-        arguments: '-c Release'
+        arguments: '-c Release --no-restore /p:Version=$(Build.BuildNumber)'
         versioningScheme: 'byBuildNumber'
 
     - task: DotNetCoreCLI@2
@@ -76,12 +76,12 @@ stages:
         packagesToPack: '**/Tharga.Toolkit.Standard.csproj'
         versioningScheme: 'byBuildNumber'
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Pack Tharga.Test.Toolkit'
-      inputs:
-        command: 'pack'
-        packagesToPack: '**/Tharga.Test.Toolkit.csproj'
-        versioningScheme: 'byBuildNumber'
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Pack Tharga.Test.Toolkit'
+    #   inputs:
+    #     command: 'pack'
+    #     packagesToPack: '**/Tharga.Test.Toolkit.csproj'
+    #     versioningScheme: 'byBuildNumber'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish artifacts'
