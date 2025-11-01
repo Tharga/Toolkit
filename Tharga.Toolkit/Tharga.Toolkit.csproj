@@ -6,7 +6,7 @@
 		<Authors>Daniel Bohlin</Authors>
 		<Company>Thargelion AB</Company>
 		<Product>Tharga Toolkit</Product>
-		<Description>Various tools for collections, DateTime, Luhn, Compare and Assembly.</Description>
+		<Description>Tools for collections, DateTime, Luhn, Compare and more.</Description>
 		<PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageProjectUrl>https://github.com/Tharga/Toolkit</PackageProjectUrl>
@@ -18,7 +18,6 @@
 		<DebugType>portable</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 		<EnableSourceLink>false</EnableSourceLink>
-
 	</PropertyGroup>
 
 	<PropertyGroup>

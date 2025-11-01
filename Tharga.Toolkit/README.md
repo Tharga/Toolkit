@@ -1,6 +1,6 @@
 # Tharga Toolkit
 
-Have features for Assembly and Types along with features from the dependent package.
+General tools with extensions for DateTime, Luhn, Compare and more.
 
 ### Features
 - Compare
@@ -11,7 +11,7 @@ Have features for Assembly and Types along with features from the dependent pack
 - EnumExtensions
 - Enumeration
 - Luhn
-- Assembly and TypeService Service
+- Encryption, Passwords and ApiKey
 
 Read more on the project site.
 

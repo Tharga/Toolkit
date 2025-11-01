@@ -10,7 +10,7 @@ Contains a *.NET* version and a *Standard* version.
 
 ### Features
 - All features from the standard package
-- Assembly and TypeService Service
+- Encryption, Passwords and ApiKey
 
 ## Standard
 [![NuGet](https://img.shields.io/nuget/v/Tharga.Toolkit.Standard)](https://www.nuget.org/packages/Tharga.Toolkit.Standard)
@@ -26,26 +26,6 @@ Contains a *.NET* version and a *Standard* version.
 - EnumExtensions
 - Enumeration
 - Luhn
-
-## Assembly and TypeService Service
-
-Register the service
-```
-public void ConfigureServices(IServiceCollection services)
-{
-	services.AddAssemblyService();
-}
-```
-
-When `GetTypes` is called the first time, data is stored in cache. All other calls will use that cache.
-```
-assemblyService.GetTypes("CacheKey", x => x.IsOfType(typeof([SomeType]), false) && !x.IsAbstract);
-```
-
-Preload cache by calling `LoadTypes`.
-```
-assemblyService.LoadTypes("CacheKey", x => x.IsOfType(typeof([SomeType]), false) && !x.IsAbstract);
-```
 
 # Test Toolkit
 [![NuGet](https://img.shields.io/nuget/v/Tharga.Test.Toolkit)](https://www.nuget.org/packages/Tharga.Test.Toolkit)
