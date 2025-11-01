@@ -1,6 +1,6 @@
 # Tharga Toolkit Standard
 
-General tools with extensions for collections, DateTime, Luhn and Compare.
+General tools with extensions for DateTime, Luhn, Compare and more.
 
 ### Features
 - Compare

@@ -32,8 +32,8 @@ namespace Tharga.Toolkit
 
             if (string.IsNullOrEmpty(email))
             {
-                var preferredUsername = arr.FirstOrDefault(x => x.Type == "name")?.Value;
-                if (preferredUsername?.Contains("@") ?? false) email = preferredUsername;
+                var name = arr.FirstOrDefault(x => x.Type == "name")?.Value;
+                if (name?.Contains("@") ?? false) email = name;
             }
 
             return email;
