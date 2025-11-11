@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 namespace Tharga.Toolkit
 {
-    public static class ClaimsExtensions
+    public static class ClaimsExtensionsStandard
     {
-        private static readonly string[] _keyClaimTypes =
+        public static readonly string[] KeyClaimTypes =
         {
             ClaimTypes.NameIdentifier, // WS-Fed / ASP.NET Identity
             "sub",                     // OpenID Connect
@@ -16,37 +16,41 @@ namespace Tharga.Toolkit
             "uid"                      // Custom / LDAP
         };
 
-        public static string GetKey(this ClaimsPrincipal claimsPrincipal)
+        public static (string Identity, string Type) GetIdentity(this ClaimsPrincipal claimsPrincipal)
         {
-            if (claimsPrincipal == null) throw new ArgumentNullException(nameof(claimsPrincipal));
-            return claimsPrincipal.Claims.GetKey();
+            return claimsPrincipal.Claims.GetIdentities().FirstOrDefault();
         }
 
-        public static string GetKey(this ClaimsIdentity claimsIdentity)
+        public static (string Identity, string Type) GetIdentity(this ClaimsIdentity claimsIdentity)
         {
-            if (claimsIdentity == null) throw new ArgumentNullException(nameof(claimsIdentity));
-            return claimsIdentity.Claims.GetKey();
+            return claimsIdentity.Claims.GetIdentities().FirstOrDefault();
         }
 
-        public static string GetKey(this IEnumerable<Claim> claims)
+        public static (string Identity, string Type) GetIdentity(this IEnumerable<Claim> claims)
+        {
+            return claims.GetIdentities().FirstOrDefault();
+        }
+
+        public static IEnumerable<(string Identity, string Type)> GetIdentities(this IEnumerable<Claim> claims)
         {
             if (claims == null) throw new ArgumentNullException(nameof(claims));
 
             var arr = claims as Claim[] ?? claims.ToArray();
 
-            foreach (var type in _keyClaimTypes)
+            foreach (var keyClaimType in KeyClaimTypes)
             {
-                var value = arr.FirstOrDefault(c => string.Equals(c.Type, type, StringComparison.OrdinalIgnoreCase))?.Value;
-                if (!string.IsNullOrWhiteSpace(value)) return value;
+                var value = arr.FirstOrDefault(c => string.Equals(c.Type, keyClaimType, StringComparison.OrdinalIgnoreCase))?.Value;
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    yield return (value, keyClaimType);
+                }
             }
-
-            return null;
         }
 
         [Obsolete("Use GetKey instead.")]
         public static string GetSub(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.GetKey();
+            return claimsPrincipal.Claims.GetIdentities().FirstOrDefault().Identity;
         }
 
         public static string GetEmail(this ClaimsPrincipal claimsPrincipal)
