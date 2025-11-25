@@ -11,6 +11,8 @@ Contains a *.NET* version and a *Standard* version.
 ### Features
 - All features from the standard package
 - Encryption, Passwords and ApiKey
+- HashExtensions
+- ClaimsExtensions
 
 ## Standard
 [![NuGet](https://img.shields.io/nuget/v/Tharga.Toolkit.Standard)](https://www.nuget.org/packages/Tharga.Toolkit.Standard)
@@ -22,7 +24,6 @@ Contains a *.NET* version and a *Standard* version.
 - ManagedTimer
 - DateTimeExtensions
 - ListExtensions
-- HashExtensions
 - EnumExtensions
 - Enumeration
 - Luhn
