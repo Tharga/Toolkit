@@ -76,4 +76,11 @@ public static class ClaimsExtensions
             yield return (val.Value, val.Key);
         }
     }
+
+    public static string GetIdentity(this IdentityKey identityKey, string type)
+    {
+        var json = identityKey.Value.FromBase64();
+        var vals = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+        return vals.FirstOrDefault(x => x.Key == type).Value;
+    }
 }

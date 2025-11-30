@@ -11,6 +11,6 @@ public record IdentityKey
 
     public string Value => _value;
 
-    public static implicit operator IdentityKey(string value) => new(value);
-    public static implicit operator string(IdentityKey key) => key._value;
+    //public static implicit operator IdentityKey(string value) => new(value);
+    //public static implicit operator string(IdentityKey key) => key._value;
 }
