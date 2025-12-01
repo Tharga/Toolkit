@@ -63,7 +63,7 @@ public static class HashExtensions
 
     public static Hash ToHash(this Uri item, HashType type = HashType.MD5, Encoding encoding = null)
     {
-        return item?.OriginalString.ToHash(type, encoding);
+        return item?.AbsoluteUri.ToHash(type, encoding);
     }
 
     public static HashString ToHash(this byte[] item, HashFormat format, HashType type = HashType.MD5)
