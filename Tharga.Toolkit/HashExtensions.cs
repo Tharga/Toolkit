@@ -11,6 +11,9 @@ public static class HashExtensions
 {
     public static Hash ToHash(this byte[] item, HashType type = HashType.MD5)
     {
+        if (item == null) return null;
+        if (item.Length == 0) return null;
+
         switch (type)
         {
             case HashType.MD5:
@@ -60,8 +63,7 @@ public static class HashExtensions
 
     public static Hash ToHash(this Uri item, HashType type = HashType.MD5, Encoding encoding = null)
     {
-        if (item == null) return null;
-        return item.OriginalString.ToHash(type, encoding);
+        return item?.OriginalString.ToHash(type, encoding);
     }
 
     public static HashString ToHash(this byte[] item, HashFormat format, HashType type = HashType.MD5)
@@ -72,16 +74,12 @@ public static class HashExtensions
 
     public static HashString ToHash(this string item, HashFormat format, HashType type = HashType.MD5, Encoding encoding = null)
     {
-        if (string.IsNullOrEmpty(item)) return null;
-
         var hash = item.ToHash(type, encoding);
         return hash.FormatHash(format);
     }
 
     public static HashString ToHash(this Uri item, HashFormat format, HashType type = HashType.MD5, Encoding encoding = null)
     {
-        if (item == null) return null;
-
         var hash = item.ToHash(type, encoding);
         return hash.FormatHash(format);
     }
@@ -93,6 +91,7 @@ public static class HashExtensions
 
     public static async Task<HashString> ToHashAsync(this Stream stream, HashFormat format, HashType type = HashType.MD5)
     {
+        if (stream == null) throw new NullReferenceException($"{nameof(Stream)} is null.");
         var result = await stream.ToHashAsync(type);
         return result.FormatHash(format);
     }
@@ -104,6 +103,7 @@ public static class HashExtensions
 
     public static async Task<HashString> ToHashAndOutputAsync(this Stream input, Stream output, HashFormat format, HashType type = HashType.MD5)
     {
+        if (input == null) throw new NullReferenceException($"{nameof(Stream)} {nameof(input)} is null.");
         var result = await ToHashAndOutputAsync(input, output, type);
         return result.FormatHash(format);
     }
@@ -125,11 +125,13 @@ public static class HashExtensions
 
         try
         {
+            var hasData = false;
             await using var crypto = new CryptoStream(Stream.Null, hashAlgorithm, CryptoStreamMode.Write);
 
             int read;
             while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
+                hasData = true;
                 crypto.Write(buffer, 0, read);
 
                 if (output != null)
@@ -138,8 +140,9 @@ public static class HashExtensions
                 }
             }
 
-            await crypto.FlushFinalBlockAsync();
+            if (!hasData) return null;
 
+            await crypto.FlushFinalBlockAsync();
             return hashAlgorithm.Hash!;
         }
         finally
@@ -150,6 +153,8 @@ public static class HashExtensions
 
     public static HashString FormatHash(this Hash hash, HashFormat format)
     {
+        if (hash == null) return null;
+
         switch (format)
         {
             case HashFormat.Hex:
@@ -186,17 +191,17 @@ public static class HashExtensions
 
     public static Hash UnformatHash(this HashString hash)
     {
-        if (hash == null) return null;
-
-        return UnformatHash(hash.Value, hash.Format);
+        return UnformatHash(hash?.Value, hash?.Format);
     }
 
-    internal static Hash UnformatHash(string value, HashFormat format)
+    internal static Hash UnformatHash(string value, HashFormat? format)
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
 
         switch (format)
         {
+            case null:
+                throw new NotImplementedException("Auto detect format has not been implemented.");
             case HashFormat.Hex:
             case HashFormat.HexLower:
             case HashFormat.HexWithDashes:
