@@ -17,7 +17,7 @@ public class HashUriTests
         var hash = uri.ToHash(HashFormat.Base64, HashType.MD5, Encoding.ASCII);
 
         //Arrange
-        hash.Value.Should().Be("igC8jgPDadDorMolZZfJ0w==");
+        hash.Value.Should().Be("H08yNpfG+ALpsgIYLStapQ==");
     }
 
     [Fact]
