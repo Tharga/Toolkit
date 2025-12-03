@@ -131,6 +131,32 @@ public class HashStreamTests
         hash.Value.Should().Be("f8VicOenD6gaWTW3Lqy+KQ==");
     }
 
+    [Fact]
+    public async Task NullStreamNonSeekHashString()
+    {
+        //Arrange
+        var ms = new NonSeekableInputStream([]);
+
+        //Act
+        var hash = await ms.ToHashAsync(HashFormat.Base64);
+
+        //Assert
+        hash.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task NullStreamNonSeekHash()
+    {
+        //Arrange
+        var ms = new NonSeekableInputStream([]);
+
+        //Act
+        var hash = await ms.ToHashAsync();
+
+        //Assert
+        hash.Should().BeNull();
+    }
+
     [Theory]
     [InlineData(HashType.MD5, "f8VicOenD6gaWTW3Lqy+KQ==")]
     [InlineData(HashType.SHA1, "bc1M4j2I4u6VaLpUbAB8Y9kTHBs=")]
