@@ -114,14 +114,20 @@ namespace Tharga.Toolkit
 
         public static string ToBase64(this string item)
         {
-            var bytes = Encoding.UTF8.GetBytes(item);
-            return Convert.ToBase64String(bytes);
+            if (item == null) return null;
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(item));
         }
 
         public static string FromBase64(this string item)
         {
-            var bytes = Convert.FromBase64String(item);
-            return Encoding.UTF8.GetString(bytes);
+            if (item == null) return null;
+            return Encoding.UTF8.GetString(Convert.FromBase64String(item));
+        }
+
+        public static string Truncate(this string item, int maxLength)
+        {
+            if (item.Length <= maxLength) return item;
+            return item.Substring(0, maxLength);
         }
     }
 }
