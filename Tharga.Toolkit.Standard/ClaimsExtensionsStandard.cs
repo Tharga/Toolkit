@@ -47,12 +47,6 @@ namespace Tharga.Toolkit
             }
         }
 
-        [Obsolete("Use GetKey instead.")]
-        public static string GetSub(this ClaimsPrincipal claimsPrincipal)
-        {
-            return claimsPrincipal.Claims.GetIdentities().FirstOrDefault().Identity;
-        }
-
         public static string GetEmail(this ClaimsPrincipal claimsPrincipal)
         {
             if (claimsPrincipal == null) throw new ArgumentNullException(nameof(claimsPrincipal));
