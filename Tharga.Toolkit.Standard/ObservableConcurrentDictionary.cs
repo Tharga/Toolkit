@@ -7,6 +7,11 @@ using System.Linq;
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// A thread-safe dictionary that raises collection and property change notifications when items are added, removed, or modified.
+    /// </summary>
+    /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
     public class ObservableConcurrentDictionary<TKey, TValue> :
         IDictionary<TKey, TValue>,
         INotifyCollectionChanged,

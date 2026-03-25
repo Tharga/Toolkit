@@ -5,16 +5,38 @@ using System.Linq;
 
 namespace Tharga.Toolkit.Compare
 {
+    /// <summary>
+    /// Provides extension methods for performing deep comparison of two objects, returning their differences.
+    /// </summary>
     public static class CompareExtensions
     {
+        /// <summary>
+        /// Specifies the mode used when comparing objects.
+        /// </summary>
         [Flags]
         public enum CompareMode
         {
+            /// <summary>
+            /// Standard comparison with strict type and order matching.
+            /// </summary>
             Standard = 0x0,
+            /// <summary>
+            /// Ignores type differences when comparing objects.
+            /// </summary>
             IgnoreType = 0x1,
+            /// <summary>
+            /// Ignores the sort order of elements when comparing collections.
+            /// </summary>
             IgnoreSortOrder = 0x2,
         }
 
+        /// <summary>
+        /// Performs a deep comparison between two objects and returns the differences found.
+        /// </summary>
+        /// <param name="s1">The first object to compare.</param>
+        /// <param name="s2">The second object to compare.</param>
+        /// <param name="compareMode">The comparison mode to use.</param>
+        /// <returns>An enumerable of <see cref="IDiff"/> representing the differences between the two objects.</returns>
         public static IEnumerable<IDiff> Compare(this object s1, object s2, CompareMode compareMode = CompareMode.Standard)
         {
             return DoCompare(null, null, s1, s2, compareMode, new List<object>());

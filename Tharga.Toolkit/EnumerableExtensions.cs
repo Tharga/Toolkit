@@ -6,10 +6,16 @@ using System.Threading.Tasks;
 
 namespace Tharga.Toolkit;
 
+/// <summary>
+/// Async extension methods for <see cref="IAsyncEnumerable{T}"/>.
+/// </summary>
 public static class EnumerableExtensionsAsync
 {
     private static readonly Lazy<Random> _rng = new(() => new Random());
 
+    /// <summary>
+    /// Selects a random element from an async sequence using reservoir sampling.
+    /// </summary>
     public static async Task<T> TakeRandomAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
     {
         await using var enumerator = values.GetAsyncEnumerator(cancellationToken);
@@ -31,6 +37,10 @@ public static class EnumerableExtensionsAsync
         return result;
     }
 
+    /// <summary>
+    /// Returns the elements of an async sequence in random order using Fisher-Yates shuffle.
+    /// Materializes the full sequence before shuffling.
+    /// </summary>
     public static async IAsyncEnumerable<T> RandomOrderAsync<T>(this IAsyncEnumerable<T> values, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var list = new List<T>();

@@ -2,13 +2,23 @@
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Provides extension methods for parsing and validating Swedish organization numbers.
+    /// </summary>
     public static class OrgNoExtensions
     {
+        /// <summary>
+        /// Attempts to parse and validate a Swedish organization number from the input string.
+        /// </summary>
         public static bool TryParseOrgNo(this string input, out string orgNo)
         {
             return TryParseOrgNo(input, out orgNo, out _);
         }
 
+        /// <summary>
+        /// Attempts to parse and validate a Swedish organization number from the input string,
+        /// providing an error type if parsing fails.
+        /// </summary>
         public static bool TryParseOrgNo(this string input, out string orgNo, out ErrorType? errorType)
         {
             orgNo = default;

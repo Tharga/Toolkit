@@ -5,8 +5,14 @@ using System.Text;
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Extension methods and utilities for string manipulation, random string generation, and Base64 encoding.
+    /// </summary>
     public static class StringExtension
     {
+        /// <summary>
+        /// Returns <c>null</c> if the string is empty; otherwise returns the original string.
+        /// </summary>
         public static string NullIfEmpty(this string item)
         {
             if (item == string.Empty)
@@ -17,11 +23,17 @@ namespace Tharga.Toolkit
             return item;
         }
 
+        /// <summary>
+        /// Returns <c>true</c> if the string is null or empty.
+        /// </summary>
         public static bool IsNullOrEmpty(this string item)
         {
             return string.IsNullOrEmpty(item);
         }
 
+        /// <summary>
+        /// Returns a fallback value if the string is null or empty.
+        /// </summary>
         public static string IfEmpty(this string item, string value)
         {
             if (string.IsNullOrEmpty(item)) return value;
@@ -72,6 +84,14 @@ namespace Tharga.Toolkit
             return GetRandomString(minLength, maxLength, availableCharacters);
         }
 
+        /// <summary>
+        /// Generates a cryptographically random string with length between <paramref name="minLength"/> and <paramref name="maxLength"/>.
+        /// </summary>
+        /// <param name="minLength">Minimum length of the generated string.</param>
+        /// <param name="maxLength">Maximum length of the generated string.</param>
+        /// <param name="availableCharacters">The character set to draw from.</param>
+        /// <exception cref="ArgumentException">Thrown when the character set is null or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the length range is invalid.</exception>
         public static string GetRandomString(int minLength = 8, int maxLength = 16, string availableCharacters = AlphaNumericCharacters)
         {
             if (string.IsNullOrEmpty(availableCharacters)) throw new ArgumentException("Character set cannot be null or empty.", nameof(availableCharacters));
@@ -112,18 +132,27 @@ namespace Tharga.Toolkit
             }
         }
 
+        /// <summary>
+        /// Encodes the string to Base64 using UTF-8. Returns <c>null</c> if the input is null.
+        /// </summary>
         public static string ToBase64(this string item)
         {
             if (item == null) return null;
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(item));
         }
 
+        /// <summary>
+        /// Decodes a Base64 string to its UTF-8 representation. Returns <c>null</c> if the input is null.
+        /// </summary>
         public static string FromBase64(this string item)
         {
             if (item == null) return null;
             return Encoding.UTF8.GetString(Convert.FromBase64String(item));
         }
 
+        /// <summary>
+        /// Truncates the string to the specified maximum length.
+        /// </summary>
         public static string Truncate(this string item, int maxLength)
         {
             if (item.Length <= maxLength) return item;

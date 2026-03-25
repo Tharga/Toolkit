@@ -2,16 +2,25 @@
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Provides extension methods for converting byte counts into human-readable size strings.
+    /// </summary>
     public static class ByteSizeExtensions
     {
         private static readonly string[] ShortUnits = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
         private static readonly string[] FullUnits = { "Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes", "Petabytes", "Exabytes" };
 
+        /// <summary>
+        /// Converts an integer byte count into a human-readable size string (e.g. "1 KB" or "1 Kilobytes").
+        /// </summary>
         public static string ToReadableByteSize(this int byteCount, bool useFullUnit = false, int decimalPlaces = 0)
         {
             return ((long)byteCount).ToReadableByteSize(useFullUnit, decimalPlaces);
         }
 
+        /// <summary>
+        /// Converts a long byte count into a human-readable size string with automatic unit scaling (e.g. "1 KB" or "1 Kilobytes").
+        /// </summary>
         public static string ToReadableByteSize(this long byteCount, bool useFullUnit = false, int decimalPlaces = 0)
         {
             if (byteCount < 0) throw new ArgumentOutOfRangeException(nameof(byteCount), "Byte count cannot be negative.");
