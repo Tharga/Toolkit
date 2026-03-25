@@ -13,44 +13,44 @@
 - [x] ApiKeyOptions, ApiKeyServiceRegistration — documented
 
 ### Step 2: Tharga.Toolkit.Standard XML docs (extensions)
-- [~] StringExtension
-- [ ] DateTimeExtensions
-- [ ] EnumerableExtensions
-- [ ] EnumExtensions
-- [ ] IntegerExtensions
-- [ ] ByteSizeExtensions
-- [ ] OrgNoExtensions
-- [ ] ExceptionExtension (Logging)
-- [ ] ClaimsExtensionsStandard
+- [x] StringExtension — class and all public methods documented
+- [x] DateTimeExtensions — class and all public methods documented
+- [x] EnumerableExtensions — class and all public methods documented
+- [x] EnumExtensions — class and both MapEnum methods documented
+- [x] IntegerExtensions — class and GetNameForNumber documented
+- [x] ByteSizeExtensions — class and both ToReadableByteSize methods documented
+- [x] OrgNoExtensions — class and both TryParseOrgNo methods documented
+- [x] ExceptionExtension — class and all methods documented
+- [x] ClaimsExtensionsStandard — already had some docs
 
 ### Step 3: Tharga.Toolkit.Standard XML docs (classes)
-- [ ] CompareExtensions, Diff, DifferentTypes, IDiff
-- [ ] ManagedTimer, event args (Before/After/Skip/StateChanged/IntervalChanged), HiResDateTime
-- [ ] Enumeration
-- [ ] Luhn
-- [ ] PasswordHasher
-- [ ] ConcurrentTwoLevelDictionary
-- [ ] ObservableConcurrentDictionary
-- [ ] SemaphoreExecutor
-- [ ] DurationOptions, DurationStringOptions, DurationStringOptionsExtensions
-- [ ] TimeSpanStringOptions, TimeSpanStringOptionsExtensions, UnitOption
-- [ ] EUnit, Language, ErrorType
+- [x] CompareExtensions, Diff, DifferentTypes, IDiff — all documented
+- [x] ManagedTimer, event args, HiResDateTime — all documented
+- [x] Enumeration — all documented
+- [x] Luhn — all documented
+- [x] PasswordHasher — already had docs
+- [x] ConcurrentTwoLevelDictionary — documented
+- [x] ObservableConcurrentDictionary — documented
+- [x] SemaphoreExecutor — already had docs
+- [x] DurationOptions, DurationStringOptions, DurationStringOptionsExtensions — documented
+- [x] TimeSpanStringOptions, TimeSpanStringOptionsExtensions, UnitOption — documented
+- [x] EUnit, Language, ErrorType — documented
 
 ## Phase 2: README improvements
 
 ### Step 4: Root README
-- [ ] Project overview, installation, package choice guidance, links to sub-READMEs
+- [x] Project overview, installation, package choice guidance, feature tables, links to sub-READMEs
 
 ### Step 5: Tharga.Toolkit/README.md
-- [ ] Feature descriptions with code examples
+- [x] Feature descriptions with code examples (Hash, Base32, Claims, URI, Async Enumerables, ApiKey)
 
 ### Step 6: Tharga.Toolkit.Standard/README.md
-- [ ] Feature descriptions with code examples
+- [x] Feature descriptions with code examples (String, Compare, DateTime, Timer, Enumerables, Luhn, Password, Collections, Semaphore, OrgNo, ByteSize, Enum, Enumeration)
 
 ## Phase 3: NuGet metadata
 
 ### Step 7: Update .csproj files
-- [ ] PackageTags, PackageLicenseExpression, RepositoryUrl, RepositoryType
+- [x] PackageTags, PackageLicenseExpression, RepositoryUrl, RepositoryType — added to both
 
 ### Step 8: Final verification
-- [ ] Build succeeds with no XML doc warnings, all tests pass
+- [x] Build succeeds, all 481 tests pass

@@ -6,8 +6,12 @@
 		<Authors>Daniel Bohlin</Authors>
 		<Company>Thargelion AB</Company>
 		<Product>Tharga Toolkit</Product>
-		<Description>Tools for collections, DateTime, Luhn, Compare and more.</Description>
+		<Description>Tools for hashing, claims, API keys, collections, DateTime, Luhn, Compare and more. Includes all features from Tharga.Toolkit.Standard.</Description>
 		<PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
+		<PackageTags>toolkit;utilities;extensions;hash;claims;apikey;base32;uri;datetime;luhn;compare</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/Tharga/Toolkit</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<PackageProjectUrl>https://github.com/Tharga/Toolkit</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
