@@ -2,6 +2,9 @@
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Defines string formatting options for rendering a duration, including unit labels and special-case labels for near-zero values.
+    /// </summary>
     public class DurationStringOptions
     {
         public string PreString { get; set; }

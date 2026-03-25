@@ -5,8 +5,12 @@
     <Authors>Daniel Bohlin</Authors>
     <Company>Thargelion AB</Company>
     <Product>Tharga Toolkit Standard</Product>
-    <Description>Various tools for collections, DateTime, Luhn and Compare.</Description>
+    <Description>Utilities for string manipulation, deep object comparison, managed timers, DateTime formatting, Luhn validation, password hashing, collections, and more.</Description>
     <PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
+    <PackageTags>toolkit;utilities;extensions;compare;timer;datetime;luhn;password;collections;string</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Tharga/Toolkit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>Tharga.Toolkit</RootNamespace>
     <PackageProjectUrl>https://github.com/Tharga/Toolkit</PackageProjectUrl>

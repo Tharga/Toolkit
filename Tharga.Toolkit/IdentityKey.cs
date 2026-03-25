@@ -1,5 +1,9 @@
 ﻿namespace Tharga.Toolkit;
 
+/// <summary>
+/// A portable, serialized identity key derived from claims. Contains a Base64-encoded JSON
+/// dictionary of identity claim types and their values.
+/// </summary>
 public record IdentityKey
 {
     private readonly string _value;

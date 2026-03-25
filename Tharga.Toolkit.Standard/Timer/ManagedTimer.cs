@@ -4,10 +4,37 @@ using System.Threading.Tasks;
 
 namespace Tharga.Toolkit.Timer
 {
+    /// <summary>
+    /// A managed timer that supports async callbacks, automatic interval correction, iteration tracking, and skip detection.
+    /// </summary>
     public class ManagedTimer
     {
-        public enum TimerState { Stopped, Started, Executing, ExecuteComplete, Waiting }
-        public enum Mode { OnTime, Between }
+        /// <summary>
+        /// Represents the possible states of a <see cref="ManagedTimer"/>.
+        /// </summary>
+        public enum TimerState
+        {
+            /// <summary>The timer is stopped.</summary>
+            Stopped,
+            /// <summary>The timer has started.</summary>
+            Started,
+            /// <summary>The timer callback is currently executing.</summary>
+            Executing,
+            /// <summary>The timer callback has finished executing.</summary>
+            ExecuteComplete,
+            /// <summary>The timer is waiting for the next interval.</summary>
+            Waiting
+        }
+        /// <summary>
+        /// Specifies the timing mode for the managed timer.
+        /// </summary>
+        public enum Mode
+        {
+            /// <summary>Attempts to fire at exact intervals from the start time, compensating for execution duration.</summary>
+            OnTime,
+            /// <summary>Waits the full interval between the end of one execution and the start of the next.</summary>
+            Between
+        }
 
         private readonly object _syncRoot = new object();
         private readonly Func<long, Task> _elapsedAsync;
@@ -20,14 +47,40 @@ namespace Tharga.Toolkit.Timer
         private long _iteration;
         private long _startTime;
 
+        /// <summary>
+        /// Gets the current state of the timer.
+        /// </summary>
         public TimerState State { get; private set; } = TimerState.Stopped;
 
+        /// <summary>
+        /// Occurs when the timer interval is changed.
+        /// </summary>
         public event EventHandler<IntervalChangedEventArgs> IntervalChangedEvent;
+        /// <summary>
+        /// Occurs before the timer callback is executed.
+        /// </summary>
         public event EventHandler<BeforeExecuteEventArgs> BeforeExecuteEvent;
+        /// <summary>
+        /// Occurs after the timer callback has executed.
+        /// </summary>
         public event EventHandler<AfterExecuteEventArgs> AfterExecuteEvent;
+        /// <summary>
+        /// Occurs when the timer state changes.
+        /// </summary>
         public event EventHandler<StateChangedEventArgs> StateChangedEvent;
+        /// <summary>
+        /// Occurs when one or more iterations are skipped because execution took longer than the interval.
+        /// </summary>
         public event EventHandler<SkipEventArgs> SkipEvent;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagedTimer"/> class.
+        /// </summary>
+        /// <param name="timeSpan">The interval between timer executions.</param>
+        /// <param name="elapsedAsync">The async callback to invoke on each timer tick, receiving the current iteration number.</param>
+        /// <param name="mode">The timing mode to use.</param>
+        /// <param name="autoStart">Whether to start the timer immediately upon construction.</param>
+        /// <param name="autoReset">Whether the timer should automatically repeat after each execution.</param>
         public ManagedTimer(TimeSpan timeSpan, Func<long, Task> elapsedAsync, Mode mode = Mode.OnTime, bool autoStart = false, bool autoReset = true)
         {
             if (timeSpan.Ticks < 0) throw new ArgumentException("Interval needs to be larger than zero.");
@@ -40,6 +93,9 @@ namespace Tharga.Toolkit.Timer
             if (autoStart) Start();
         }
 
+        /// <summary>
+        /// Gets or sets the interval between timer executions. Raises <see cref="IntervalChangedEvent"/> when changed.
+        /// </summary>
         public TimeSpan Interval
         {
             get => _interval;
@@ -182,11 +238,17 @@ namespace Tharga.Toolkit.Timer
             return new TimeSpan(HiResDateTime.UtcNowTicks - startTime);
         }
 
+        /// <summary>
+        /// Starts the timer.
+        /// </summary>
         public void Start()
         {
             TimerEngine();
         }
 
+        /// <summary>
+        /// Stops the timer by requesting cancellation.
+        /// </summary>
         public void Stop()
         {
             _cancellationTokenSource.Cancel();

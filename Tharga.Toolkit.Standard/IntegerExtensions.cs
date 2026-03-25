@@ -1,7 +1,14 @@
 ﻿namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Provides extension methods for integer values.
+    /// </summary>
     public static class IntegerExtensions
     {
+        /// <summary>
+        /// Returns the ordinal name for a given number (e.g. 1 returns "Primary", 2 returns "Secondary").
+        /// Falls back to "Number {n}" for values outside the 1-10 range.
+        /// </summary>
         public static string GetNameForNumber(int number)
         {
             switch (number)
