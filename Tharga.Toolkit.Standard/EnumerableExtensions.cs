@@ -4,10 +4,14 @@ using System.Linq;
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Extension methods for <see cref="IEnumerable{T}"/>: random selection, ordering, chunking, and null handling.
+    /// </summary>
     public static class EnumerableExtensions
     {
         private static readonly Lazy<Random> _rng = new Lazy<Random>(() => new Random());
 
+        /// <summary>Selects a random element from the sequence. Returns <c>default</c> if null or empty.</summary>
         public static T TakeRandom<T>(this IEnumerable<T> values)
         {
             if (values == null) return default;
@@ -17,16 +21,19 @@ namespace Tharga.Toolkit
             return list[index];
         }
 
+        /// <summary>Returns the elements of the sequence in random order.</summary>
         public static IEnumerable<T> RandomOrder<T>(this IEnumerable<T> values)
         {
             return values.OrderBy(_ => _rng.Value.Next());
         }
 
+        /// <summary>Returns all elements except the first.</summary>
         public static IEnumerable<T> TakeAllButFirst<T>(this IEnumerable<T> values)
         {
             return values?.Skip(1);
         }
 
+        /// <summary>Returns all elements except the last.</summary>
         public static IEnumerable<T> TakeAllButLast<T>(this IEnumerable<T> values)
         {
             if (values == null) return null;
@@ -53,6 +60,7 @@ namespace Tharga.Toolkit
             }
         }
 
+        /// <summary>Splits the sequence into chunks of the specified size.</summary>
         public static IEnumerable<IEnumerable<TValue>> TakeChunks<TValue>(this IEnumerable<TValue> values, int chunkSize)
         {
             return values?.Select((v, i) => new { v, groupIndex = i / chunkSize })
@@ -60,6 +68,7 @@ namespace Tharga.Toolkit
                 .Select(g => g.Select(x => x.v));
         }
 
+        /// <summary>Returns <c>true</c> if the sequence is null or contains no elements.</summary>
         public static bool IsNullOrEmpty<T>(IEnumerable<T> values)
         {
             if (values == null) return true;
@@ -67,6 +76,7 @@ namespace Tharga.Toolkit
             return false;
         }
 
+        /// <summary>Returns an empty sequence if the input is null; otherwise returns the input.</summary>
         public static IEnumerable<T> EmptyIfNull<T>(IEnumerable<T> items)
         {
             if (items == null) return Enumerable.Empty<T>();

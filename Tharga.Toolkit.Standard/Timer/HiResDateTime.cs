@@ -3,10 +3,16 @@ using System.Threading;
 
 namespace Tharga.Toolkit.Timer
 {
+    /// <summary>
+    /// Provides a high-resolution UTC timestamp that guarantees strictly increasing tick values across concurrent calls.
+    /// </summary>
     public static class HiResDateTime
     {
         private static long _lastTimeStamp = DateTime.UtcNow.Ticks;
 
+        /// <summary>
+        /// Gets the current UTC time in ticks, guaranteed to be strictly greater than any previously returned value.
+        /// </summary>
         public static long UtcNowTicks
         {
             get

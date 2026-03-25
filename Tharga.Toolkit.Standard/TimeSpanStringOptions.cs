@@ -2,6 +2,9 @@
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Defines string formatting options for rendering a <see cref="System.TimeSpan"/>, including unit labels for each time unit.
+    /// </summary>
     public class TimeSpanStringOptions
     {
         public Dictionary<EUnit, UnitOption> UnitOptions { get; set; }

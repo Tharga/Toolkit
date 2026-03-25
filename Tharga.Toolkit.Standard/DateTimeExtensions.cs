@@ -2,72 +2,92 @@
 
 namespace Tharga.Toolkit
 {
+    /// <summary>
+    /// Extension methods for formatting <see cref="DateTime"/> and <see cref="TimeSpan"/> values
+    /// as human-readable strings, including localized duration strings (e.g. "2 hours ago").
+    /// </summary>
     public static class DateTimeExtensions
     {
+        /// <summary>Formats a nullable DateTime as a local date string.</summary>
         public static string ToLocalDateString(this DateTime? item, string format = "yyyy-MM-dd")
         {
             if (item == null) return string.Empty;
             return item.Value.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a DateTime as a local date string.</summary>
         public static string ToLocalDateString(this DateTime item, string format = "yyyy-MM-dd")
         {
             return item.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a nullable DateTime as a local time string.</summary>
         public static string ToLocalTimeString(this DateTime? item, string format = "HH:mm:ss")
         {
             if (item == null) return string.Empty;
             return item.Value.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a DateTime as a local time string.</summary>
         public static string ToLocalTimeString(this DateTime item, string format = "HH:mm:ss")
         {
             return item.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a nullable DateTime as a local date and time string.</summary>
         public static string ToLocalDateTimeString(this DateTime? item, string format = "yyyy-MM-dd HH:mm:ss")
         {
             if (item == null) return string.Empty;
             return item.Value.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a DateTime as a local date and time string.</summary>
         public static string ToLocalDateTimeString(this DateTime item, string format = "yyyy-MM-dd HH:mm:ss")
         {
             return item.ToLocalTime().ToString(format);
         }
 
+        /// <summary>Formats a nullable DateTime as a localized relative duration string (e.g. "2 hours ago").</summary>
         public static string ToLocalDurationString(this DateTime? item, DurationOptions options = null)
         {
             if (item == null) return string.Empty;
             return item.Value.ToLocalTime().ToDurationString(options);
         }
 
+        /// <summary>Formats a DateTime as a localized relative duration string.</summary>
         public static string ToLocalDurationString(this DateTime item, DurationOptions options = null)
         {
             return item.ToLocalTime().ToDurationString(options);
         }
 
+        /// <summary>Formats a nullable DateTime as a short date and long time string.</summary>
         public static string ToDateTimeString(this DateTime? item, DurationOptions options = null)
         {
             return item == null ? string.Empty : item.Value.ToDateTimeString();
         }
 
+        /// <summary>Formats a DateTime as a short date and long time string.</summary>
         public static string ToDateTimeString(this DateTime item, DurationOptions options = null)
         {
             return $"{item.ToShortDateString()} {item.ToLongTimeString()}";
         }
 
+        /// <summary>Formats a TimeSpan as "H:mm:ss".</summary>
         public static string ToTimeString(this TimeSpan timeSpan)
         {
             return $"{timeSpan.Hours}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
         }
 
+        /// <summary>Formats a nullable DateTime as a human-readable duration string relative to now.</summary>
         public static string ToDurationString(this DateTime? item, DurationOptions options = null)
         {
             return item == null ? string.Empty : item.Value.ToDurationString(options);
         }
 
+        /// <summary>
+        /// Formats a DateTime as a human-readable duration string relative to a base value (default: now).
+        /// Supports localization via <see cref="DurationOptions.StringOptions"/>.
+        /// </summary>
         public static string ToDurationString(this DateTime item, DurationOptions options = null)
         {
             options = options ?? new DurationOptions();
@@ -147,11 +167,16 @@ namespace Tharga.Toolkit
             return $"{preString}{duration.ToStringDurationString(options.StringOptions.Year)}{postString}";
         }
 
+        /// <summary>Formats a nullable TimeSpan as a human-readable string (e.g. "5 minutes").</summary>
         public static string ToTimeSpanString(this TimeSpan? item, TimeSpanStringOptions options = null)
         {
             return item == null ? string.Empty : item.Value.ToTimeSpanString(options);
         }
 
+        /// <summary>
+        /// Formats a TimeSpan as a human-readable string using the most appropriate unit.
+        /// Supports localization via <see cref="TimeSpanStringOptions"/>.
+        /// </summary>
         public static string ToTimeSpanString(this TimeSpan item, TimeSpanStringOptions options = null)
         {
             options = options ?? TimeSpanStringOptionsExtensions.Get("en");

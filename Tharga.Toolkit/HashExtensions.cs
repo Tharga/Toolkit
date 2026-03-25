@@ -7,8 +7,17 @@ using System.Threading.Tasks;
 
 namespace Tharga.Toolkit;
 
+/// <summary>
+/// Extension methods for computing hash values from bytes, strings, URIs, and streams.
+/// </summary>
 public static class HashExtensions
 {
+    /// <summary>
+    /// Computes a hash of the specified byte array.
+    /// </summary>
+    /// <param name="item">The data to hash.</param>
+    /// <param name="type">The hash algorithm to use. Defaults to MD5.</param>
+    /// <returns>A <see cref="Hash"/> containing the computed hash, or <c>null</c> if the input is null or empty.</returns>
     public static Hash ToHash(this byte[] item, HashType type = HashType.MD5)
     {
         if (item == null) return null;
@@ -51,6 +60,13 @@ public static class HashExtensions
         }
     }
 
+    /// <summary>
+    /// Computes a hash of the specified string.
+    /// </summary>
+    /// <param name="item">The string to hash.</param>
+    /// <param name="type">The hash algorithm to use. Defaults to MD5.</param>
+    /// <param name="encoding">The encoding to use. Defaults to UTF-8.</param>
+    /// <returns>A <see cref="Hash"/> containing the computed hash, or <c>null</c> if the input is null or empty.</returns>
     public static Hash ToHash(this string item, HashType type = HashType.MD5, Encoding encoding = null)
     {
         if (string.IsNullOrEmpty(item)) return null;
@@ -61,34 +77,52 @@ public static class HashExtensions
         return data.ToHash(type);
     }
 
+    /// <summary>
+    /// Computes a hash of the URI's absolute string representation.
+    /// </summary>
     public static Hash ToHash(this Uri item, HashType type = HashType.MD5, Encoding encoding = null)
     {
         return item?.AbsoluteUri.ToHash(type, encoding);
     }
 
+    /// <summary>
+    /// Computes a hash of the byte array and returns a formatted string representation.
+    /// </summary>
     public static HashString ToHash(this byte[] item, HashFormat format, HashType type = HashType.MD5)
     {
         var hash = item.ToHash(type);
         return hash.FormatHash(format);
     }
 
+    /// <summary>
+    /// Computes a hash of the string and returns a formatted string representation.
+    /// </summary>
     public static HashString ToHash(this string item, HashFormat format, HashType type = HashType.MD5, Encoding encoding = null)
     {
         var hash = item.ToHash(type, encoding);
         return hash.FormatHash(format);
     }
 
+    /// <summary>
+    /// Computes a hash of the URI and returns a formatted string representation.
+    /// </summary>
     public static HashString ToHash(this Uri item, HashFormat format, HashType type = HashType.MD5, Encoding encoding = null)
     {
         var hash = item.ToHash(type, encoding);
         return hash.FormatHash(format);
     }
 
+    /// <summary>
+    /// Asynchronously computes a hash from a stream.
+    /// </summary>
     public static Task<Hash> ToHashAsync(this Stream stream, HashType type = HashType.MD5)
     {
         return ComputeHashCoreAsync(stream, null, type);
     }
 
+    /// <summary>
+    /// Asynchronously computes a hash from a stream and returns a formatted string representation.
+    /// </summary>
     public static async Task<HashString> ToHashAsync(this Stream stream, HashFormat format, HashType type = HashType.MD5)
     {
         if (stream == null) throw new NullReferenceException($"{nameof(Stream)} is null.");
@@ -96,11 +130,17 @@ public static class HashExtensions
         return result.FormatHash(format);
     }
 
+    /// <summary>
+    /// Asynchronously computes a hash while copying the stream content to an output stream.
+    /// </summary>
     public static Task<Hash> ToHashAndOutputAsync(this Stream input, Stream output, HashType type = HashType.MD5)
     {
         return ComputeHashCoreAsync(input, output, type);
     }
 
+    /// <summary>
+    /// Asynchronously computes a hash while copying the stream, returning a formatted string.
+    /// </summary>
     public static async Task<HashString> ToHashAndOutputAsync(this Stream input, Stream output, HashFormat format, HashType type = HashType.MD5)
     {
         if (input == null) throw new NullReferenceException($"{nameof(Stream)} {nameof(input)} is null.");
@@ -151,6 +191,9 @@ public static class HashExtensions
         }
     }
 
+    /// <summary>
+    /// Formats a raw <see cref="Hash"/> into a <see cref="HashString"/> using the specified format.
+    /// </summary>
     public static HashString FormatHash(this Hash hash, HashFormat format)
     {
         if (hash == null) return null;
@@ -183,12 +226,18 @@ public static class HashExtensions
         }
     }
 
+    /// <summary>
+    /// Converts a <see cref="HashString"/> to a different output format.
+    /// </summary>
     public static HashString ChangeFormat(this HashString hash, HashFormat format)
     {
         var raw = UnformatHash(hash);
         return FormatHash(raw, format);
     }
 
+    /// <summary>
+    /// Converts a formatted <see cref="HashString"/> back to a raw <see cref="Hash"/>.
+    /// </summary>
     public static Hash UnformatHash(this HashString hash)
     {
         return UnformatHash(hash?.Value, hash?.Format);

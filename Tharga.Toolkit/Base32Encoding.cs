@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Tharga.Toolkit;
 
+/// <summary>
+/// Provides RFC 4648 Base32 encoding and decoding using the standard alphabet (A-Z, 2-7).
+/// </summary>
 public static class Base32Encoding
 {
     private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -12,6 +15,11 @@ public static class Base32Encoding
         .Select((c, i) => new { Char = c, Index = (byte)i })
         .ToDictionary(c => c.Char, c => c.Index);
 
+    /// <summary>
+    /// Encodes a byte array to a Base32 string with padding.
+    /// </summary>
+    /// <param name="data">The data to encode.</param>
+    /// <returns>A Base32-encoded string, or empty if the input is null or empty.</returns>
     public static string Encode(byte[] data)
     {
         if (data == null || data.Length == 0) return string.Empty;
@@ -53,6 +61,12 @@ public static class Base32Encoding
         return result.ToString();
     }
 
+    /// <summary>
+    /// Decodes a Base32 string back to a byte array. Case-insensitive.
+    /// </summary>
+    /// <param name="input">The Base32-encoded string to decode.</param>
+    /// <returns>The decoded bytes, or an empty array if the input is null or whitespace.</returns>
+    /// <exception cref="FormatException">Thrown when the input contains invalid Base32 characters.</exception>
     public static byte[] Decode(string input)
     {
         if (string.IsNullOrWhiteSpace(input)) return Array.Empty<byte>();
