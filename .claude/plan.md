@@ -39,13 +39,13 @@
 - [x] Test `ExecuteAsync` — sequential execution for same key, concurrent execution for different keys — 3 tests, all passing
 
 ### Step 13: ManagedTimer tests
-- [~] Test `Start`, `Stop`, `Interval`, state transitions, event firing (Before/After/Skip/StateChanged/IntervalChanged)
+- [x] Test `Start`, `Stop`, `Interval`, state transitions, event firing (Before/After/Skip/StateChanged/IntervalChanged) — 14 tests, all passing
 
 ### Step 14: DurationStringOptionsExtensions & TimeSpanStringOptionsExtensions tests
-- [ ] Test `Get(string culture)`, `Get(Language)` for en/sv cultures
+- [x] Test `Get(string culture)`, `Get(Language)` for en/sv cultures — 10 tests, all passing
 
 ### Step 15: EnumerableExtensions tests (verify gaps)
-- [ ] Check what's already covered in Tharga.Toolkit.Tests, add tests for `IsNullOrEmpty`, `EmptyIfNull`, `RandomOrder` if missing
+- [x] Verified `IsNullOrEmpty`, `EmptyIfNull`, `RandomOrder`, `TakeRandom` not tested anywhere — added 9 tests, all passing
 
 ### Step 16: Final verification
-- [ ] Run full test suite, verify all pass, commit
+- [x] Full test suite: 437 tests (273 Toolkit + 164 Standard), all passing, 0 failures
