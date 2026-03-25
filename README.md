@@ -27,3 +27,16 @@ Contains a *.NET* version and a *Standard* version.
 - EnumExtensions
 - Enumeration
 - Luhn
+- StringExtension
+- PasswordHasher
+- OrgNoExtensions
+- ByteSizeExtensions
+- ClaimsExtensions
+- ConcurrentTwoLevelDictionary
+- ObservableConcurrentDictionary
+- SemaphoreExecutor
+- ExceptionExtension (Logging)
+- IntegerExtensions
+
+## Tests
+437 tests across both projects (273 Toolkit + 164 Standard), covering all major modules.
