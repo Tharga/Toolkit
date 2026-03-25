@@ -13,6 +13,10 @@ Contains a *.NET* version and a *Standard* version.
 - Encryption, Passwords and ApiKey
 - HashExtensions
 - ClaimsExtensions
+- UriExtensions
+- Base32Encoding
+- EnumerableExtensionsAsync
+- IdentityKey
 
 ## Standard
 [![NuGet](https://img.shields.io/nuget/v/Tharga.Toolkit.Standard)](https://www.nuget.org/packages/Tharga.Toolkit.Standard)
@@ -39,4 +43,4 @@ Contains a *.NET* version and a *Standard* version.
 - IntegerExtensions
 
 ## Tests
-437 tests across both projects (273 Toolkit + 164 Standard), covering all major modules.
+481 tests across both projects (317 Toolkit + 164 Standard), covering all major modules.
