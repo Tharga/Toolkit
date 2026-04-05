@@ -191,4 +191,178 @@ public class ClaimsExtensionsStandardTests
         var act = () => ((ClaimsPrincipal)null).AddRoleForDomain("Admin", "example.com");
         act.Should().Throw<ArgumentNullException>();
     }
+
+    // --- GetDisplayName tests ---
+
+    [Fact]
+    public void GetDisplayName_returns_name_claim()
+    {
+        var claims = new List<Claim> { new("name", "Daniel Bohlin") };
+        claims.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_ClaimTypes_Name_when_no_name_claim()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.Name, "Daniel Bohlin") };
+        claims.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_prefers_name_over_ClaimTypes_Name()
+    {
+        var claims = new List<Claim>
+        {
+            new("name", "From OIDC"),
+            new(ClaimTypes.Name, "From WS-Fed")
+        };
+        claims.GetDisplayName().Should().Be("From OIDC");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_nickname_when_no_name()
+    {
+        var claims = new List<Claim> { new("nickname", "Danny") };
+        claims.GetDisplayName().Should().Be("Danny");
+    }
+
+    [Fact]
+    public void GetDisplayName_combines_given_name_and_family_name()
+    {
+        var claims = new List<Claim>
+        {
+            new("given_name", "Daniel"),
+            new("family_name", "Bohlin")
+        };
+        claims.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_given_name_alone_when_no_family_name()
+    {
+        var claims = new List<Claim> { new("given_name", "Daniel") };
+        claims.GetDisplayName().Should().Be("Daniel");
+    }
+
+    [Fact]
+    public void GetDisplayName_combines_ClaimTypes_GivenName_and_Surname()
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.GivenName, "Daniel"),
+            new(ClaimTypes.Surname, "Bohlin")
+        };
+        claims.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_ClaimTypes_GivenName_alone()
+    {
+        var claims = new List<Claim> { new(ClaimTypes.GivenName, "Daniel") };
+        claims.GetDisplayName().Should().Be("Daniel");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_preferred_username_when_not_email()
+    {
+        var claims = new List<Claim> { new("preferred_username", "dannybee") };
+        claims.GetDisplayName().Should().Be("dannybee");
+    }
+
+    [Fact]
+    public void GetDisplayName_skips_preferred_username_when_email_like()
+    {
+        var claims = new List<Claim>
+        {
+            new("preferred_username", "daniel@example.com"),
+            new("email", "daniel@example.com")
+        };
+        // Should fall through to email prefix fallback
+        claims.GetDisplayName().Should().Be("Daniel");
+    }
+
+    [Fact]
+    public void GetDisplayName_falls_back_to_email_prefix_with_title_case()
+    {
+        var claims = new List<Claim> { new("email", "daniel.bohlin@example.com") };
+        claims.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_email_prefix_replaces_hyphens()
+    {
+        var claims = new List<Claim> { new("email", "anna-karin@example.com") };
+        claims.GetDisplayName().Should().Be("Anna Karin");
+    }
+
+    [Fact]
+    public void GetDisplayName_email_prefix_replaces_underscores()
+    {
+        var claims = new List<Claim> { new("email", "john_doe@example.com") };
+        claims.GetDisplayName().Should().Be("John Doe");
+    }
+
+    [Fact]
+    public void GetDisplayName_returns_null_when_no_claims()
+    {
+        var claims = new List<Claim> { new("custom", "value") };
+        claims.GetDisplayName().Should().BeNull();
+    }
+
+    [Fact]
+    public void GetDisplayName_from_ClaimsPrincipal()
+    {
+        var principal = CreatePrincipal(new Claim("name", "Daniel Bohlin"));
+        principal.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_from_ClaimsIdentity()
+    {
+        var identity = new ClaimsIdentity(new[] { new Claim("name", "Daniel Bohlin") });
+        identity.GetDisplayName().Should().Be("Daniel Bohlin");
+    }
+
+    [Fact]
+    public void GetDisplayName_throws_for_null_claims()
+    {
+        var act = () => ((IEnumerable<Claim>)null).GetDisplayName();
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetDisplayName_throws_for_null_principal()
+    {
+        var act = () => ((ClaimsPrincipal)null).GetDisplayName();
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetDisplayName_throws_for_null_identity()
+    {
+        var act = () => ((ClaimsIdentity)null).GetDisplayName();
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetDisplayName_skips_whitespace_only_name_claim()
+    {
+        var claims = new List<Claim>
+        {
+            new("name", "   "),
+            new("nickname", "Danny")
+        };
+        claims.GetDisplayName().Should().Be("Danny");
+    }
+
+    [Fact]
+    public void GetDisplayName_priority_4_over_5()
+    {
+        var claims = new List<Claim>
+        {
+            new("given_name", "OIDC Given"),
+            new(ClaimTypes.GivenName, "WSFed Given")
+        };
+        claims.GetDisplayName().Should().Be("OIDC Given");
+    }
 }

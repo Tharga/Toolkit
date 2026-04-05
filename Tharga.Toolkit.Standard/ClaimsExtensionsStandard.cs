@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 
@@ -108,6 +109,98 @@ namespace Tharga.Toolkit
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Extracts a human-readable display name from the claims principal using standard claim type priorities.
+        /// </summary>
+        /// <param name="claimsPrincipal">The claims principal to extract the display name from.</param>
+        /// <returns>The display name, or <c>null</c> if no name or email is available.</returns>
+        public static string GetDisplayName(this ClaimsPrincipal claimsPrincipal)
+        {
+            if (claimsPrincipal == null) throw new ArgumentNullException(nameof(claimsPrincipal));
+            return claimsPrincipal.Claims.GetDisplayName();
+        }
+
+        /// <summary>
+        /// Extracts a human-readable display name from the claims identity using standard claim type priorities.
+        /// </summary>
+        /// <param name="claimsIdentity">The claims identity to extract the display name from.</param>
+        /// <returns>The display name, or <c>null</c> if no name or email is available.</returns>
+        public static string GetDisplayName(this ClaimsIdentity claimsIdentity)
+        {
+            if (claimsIdentity == null) throw new ArgumentNullException(nameof(claimsIdentity));
+            return claimsIdentity.Claims.GetDisplayName();
+        }
+
+        /// <summary>
+        /// Extracts a human-readable display name from a collection of claims.
+        /// Resolution priority:
+        /// 1. "name" (OIDC standard)
+        /// 2. ClaimTypes.Name (WS-Fed / ASP.NET Identity)
+        /// 3. "nickname" (OIDC, used by Auth0)
+        /// 4. "given_name" + "family_name" (OIDC name parts)
+        /// 5. ClaimTypes.GivenName + ClaimTypes.Surname (WS-Fed name parts)
+        /// 6. "preferred_username" (only if it does not look like an email address)
+        /// 7. Email prefix from <see cref="GetEmail(IEnumerable{Claim})"/>, with separators replaced by spaces and title-cased.
+        /// </summary>
+        /// <param name="claims">The claims to extract the display name from.</param>
+        /// <returns>The display name, or <c>null</c> if no name or email is available.</returns>
+        public static string GetDisplayName(this IEnumerable<Claim> claims)
+        {
+            if (claims == null) throw new ArgumentNullException(nameof(claims));
+
+            var arr = claims as Claim[] ?? claims.ToArray();
+
+            // 1. "name" — OIDC standard
+            var value = arr.FirstOrDefault(c => c.Type == "name")?.Value;
+            if (!string.IsNullOrWhiteSpace(value)) return value;
+
+            // 2. ClaimTypes.Name — WS-Fed / ASP.NET Identity
+            value = arr.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            if (!string.IsNullOrWhiteSpace(value)) return value;
+
+            // 3. "nickname" — OIDC fallback (Auth0 etc.)
+            value = arr.FirstOrDefault(c => c.Type == "nickname")?.Value;
+            if (!string.IsNullOrWhiteSpace(value)) return value;
+
+            // 4. "given_name" + "family_name" — OIDC name parts
+            var givenName = arr.FirstOrDefault(c => c.Type == "given_name")?.Value;
+            var familyName = arr.FirstOrDefault(c => c.Type == "family_name")?.Value;
+            var combined = CombineNameParts(givenName, familyName);
+            if (combined != null) return combined;
+
+            // 5. ClaimTypes.GivenName + ClaimTypes.Surname — WS-Fed name parts
+            givenName = arr.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+            familyName = arr.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+            combined = CombineNameParts(givenName, familyName);
+            if (combined != null) return combined;
+
+            // 6. "preferred_username" — only if not email-like
+            var preferredUsername = arr.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+            if (!string.IsNullOrWhiteSpace(preferredUsername) && !preferredUsername.Contains("@"))
+                return preferredUsername;
+
+            // 7. Email prefix fallback — title-cased with separators replaced
+            var email = arr.GetEmail();
+            if (string.IsNullOrEmpty(email)) return null;
+
+            var prefix = email.Split('@')[0];
+            var words = prefix.Split('.', '-', '_');
+            var titleCased = string.Join(" ", words.Select(w =>
+                string.IsNullOrEmpty(w) ? w : char.ToUpper(w[0], CultureInfo.InvariantCulture) + w.Substring(1).ToLower(CultureInfo.InvariantCulture)));
+            return titleCased;
+        }
+
+        private static string CombineNameParts(string givenName, string familyName)
+        {
+            var hasGiven = !string.IsNullOrWhiteSpace(givenName);
+            var hasFamily = !string.IsNullOrWhiteSpace(familyName);
+
+            if (hasGiven && hasFamily) return $"{givenName} {familyName}";
+            if (hasGiven) return givenName;
+            if (hasFamily) return familyName;
+            return null;
         }
 
         /// <summary>
