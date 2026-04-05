@@ -147,6 +147,29 @@ var result = await executor.ExecuteAsync("user-123", async () =>
 });
 ```
 
+### Claims Extensions
+
+Extract identity, email, and display name from `ClaimsPrincipal`, `ClaimsIdentity`, or raw claims.
+
+```csharp
+// Identity extraction (checks sub, oid, nameid, uid, NameIdentifier)
+var (identity, type) = principal.GetIdentity();
+
+// Email extraction (checks email, emails, preferred_username, name)
+var email = principal.GetEmail();
+var domain = principal.GetEmailDomain();
+
+// Display name extraction — tries in order:
+// 1. "name" (OIDC)  2. ClaimTypes.Name (WS-Fed)  3. "nickname" (Auth0)
+// 4. given_name + family_name  5. ClaimTypes.GivenName + Surname
+// 6. preferred_username (non-email)  7. email prefix, title-cased
+var displayName = principal.GetDisplayName();
+// e.g. "daniel.bohlin@example.com" → "Daniel Bohlin"
+
+// Domain-based role assignment
+principal.AddRoleForDomain("Developer", "example.com", "contoso.com");
+```
+
 ### Other Extensions
 
 ```csharp
