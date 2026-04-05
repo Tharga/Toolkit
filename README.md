@@ -57,13 +57,13 @@ See [Tharga.Toolkit/README.md](Tharga.Toolkit/README.md) for usage examples.
 | SemaphoreExecutor | Key-based async semaphore for concurrent execution control |
 | OrgNoExtensions | Swedish organization number parsing and validation |
 | ByteSizeExtensions | Human-readable byte size formatting |
-| ClaimsExtensions | Identity and email extraction from claims |
+| ClaimsExtensions | Identity, email, and display name extraction from claims |
 
 See [Tharga.Toolkit.Standard/README.md](Tharga.Toolkit.Standard/README.md) for usage examples.
 
 ## Tests
 
-481 tests across both projects (317 Toolkit + 164 Standard), covering all public APIs.
+502 tests across both projects (317 Toolkit + 185 Standard), covering all public APIs.
 
 ## License
 
