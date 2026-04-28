@@ -63,7 +63,7 @@ See [Tharga.Toolkit.Standard/README.md](Tharga.Toolkit.Standard/README.md) for u
 
 ## Tests
 
-502 tests across both projects (317 Toolkit + 185 Standard), covering all public APIs.
+507 tests across both projects (322 Toolkit + 185 Standard), covering all public APIs.
 
 ## License
 
