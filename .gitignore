@@ -397,3 +397,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /.claude/settings.local.json
+
+# Local feature plan scratch files (per .claude/CLAUDE.md workflow)
+/plan/

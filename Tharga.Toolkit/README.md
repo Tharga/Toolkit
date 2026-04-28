@@ -87,18 +87,34 @@ await foreach (var x in asyncEnumerable.RandomOrderAsync())
 Build, encrypt, and verify API keys with dependency injection support.
 
 ```csharp
-// Register in DI
+// Register in DI with code-based options
 services.RegisterApiKeyService(options =>
 {
     options.SaltSize = 32;
     options.Iterations = 20000;
 });
 
+// Or bind options from IConfiguration (default section name: "ApiKey")
+services.RegisterApiKeyService(configuration);
+services.RegisterApiKeyService(configuration, "MyApiKeySection");
+
 // Use via IApiKeyService
 var apiKey = apiKeyService.BuildApiKey("username");
 var encrypted = apiKeyService.Encrypt(apiKey);
 bool valid = apiKeyService.Verify(apiKey, encrypted);
 var username = apiKeyService.GetUsername(apiKey);
+```
+
+Example `appsettings.json`:
+
+```json
+{
+  "ApiKey": {
+    "SaltSize": 32,
+    "HashSize": 32,
+    "Iterations": 20000
+  }
+}
 ```
 
 [![GitHub repo](https://img.shields.io/github/repo-size/Tharga/Toolkit?style=flat&logo=github&logoColor=red&label=Repo)](https://github.com/Tharga/Toolkit)
