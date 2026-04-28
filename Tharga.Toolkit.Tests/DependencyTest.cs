@@ -9,7 +9,7 @@ namespace Tharga.Toolkit.Tests;
 public class DependencyTest : DependencyTestBase
 {
     public DependencyTest()
-        : base(Assembly.GetAssembly(typeof(Enumeration)), GetStandardAssembliesToIgnore().Union(["mscorlib", "System.Runtime"]).ToArray())
+        : base(Assembly.GetAssembly(typeof(Enumeration)), GetStandardAssembliesToIgnore().Union(["mscorlib"]).ToArray())
     {
     }
 
@@ -19,6 +19,7 @@ public class DependencyTest : DependencyTestBase
         //act
         var dps = GetDependencies()
             .Where(x => x.Name != "Microsoft.Extensions.DependencyInjection.Abstractions")
+            .Where(x => !x.Name.StartsWith("System."))
             .ToArray();
 
         //Assert
