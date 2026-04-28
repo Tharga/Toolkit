@@ -19,7 +19,7 @@ public record HashString : Hash
     }
 
     /// <summary>Gets the formatted hash string.</summary>
-    public string Value { get; }
+    public new string Value { get; }
 
     /// <summary>Gets the format used to encode this hash string.</summary>
     public HashFormat Format { get; }
