@@ -227,8 +227,12 @@ public class ManagedTimerTests
     {
         var timer = new ManagedTimer(TimeSpan.FromMilliseconds(500), _ => Task.CompletedTask, autoStart: true);
 
-        // Give the async task a moment to start
-        await Task.Delay(50);
+        // Poll for state transition — bare delays are flaky on busy CI runners.
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        while (timer.State == ManagedTimer.TimerState.Stopped && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(20);
+        }
         timer.State.Should().NotBe(ManagedTimer.TimerState.Stopped);
 
         timer.Stop();
