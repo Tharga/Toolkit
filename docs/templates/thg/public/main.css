@@ -1,0 +1,5 @@
+/* Constrain navbar logo size so it doesn't dominate the header. */
+.navbar-brand img {
+  max-height: 32px;
+  width: auto;
+}

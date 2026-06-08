@@ -7,7 +7,7 @@
 		<Company>Thargelion AB</Company>
 		<Product>Tharga Toolkit</Product>
 		<Description>Tools for hashing, claims, API keys, collections, DateTime, Luhn, Compare and more. Includes all features from Tharga.Toolkit.Standard.</Description>
-		<PackageIconUrl>http://thargelion.se/wp-content/uploads/2019/11/Thargelion-White-Icon-150.png</PackageIconUrl>
+		<PackageIconUrl>https://thargelion.net/assets/component-toolkit.png</PackageIconUrl>
 		<PackageTags>toolkit;utilities;extensions;hash;claims;apikey;base32;uri;datetime;luhn;compare</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/Tharga/Toolkit</RepositoryUrl>

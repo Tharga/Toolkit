@@ -400,3 +400,8 @@ FodyWeavers.xsd
 
 # Local feature plan scratch files (per .claude/CLAUDE.md workflow)
 /plan/
+
+# DocFX generated output and metadata
+/docs/_site/
+/docs/api/
+/docs/obj/
