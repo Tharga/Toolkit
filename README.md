@@ -2,6 +2,8 @@
 
 A collection of .NET utility libraries providing extensions and helpers for common operations. Available as two NuGet packages: a modern **.NET** version (net8.0+) and a **.NET Standard 2.0** version for broader compatibility.
 
+📖 **Documentation:** [toolkit.tharga.net](https://toolkit.tharga.net)
+
 [![GitHub repo Issues](https://img.shields.io/github/issues/Tharga/Toolkit?style=flat&logo=github&logoColor=red&label=Issues)](https://github.com/Tharga/Toolkit/issues?q=is%3Aopen)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
