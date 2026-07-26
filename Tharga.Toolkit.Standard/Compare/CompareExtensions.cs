@@ -164,34 +164,45 @@ namespace Tharga.Toolkit.Compare
                 var enumr2 = o.GetEnumerator();
                 var used = new List<object>();
 
-                var index = 0;
-                while (true)
+                try
                 {
-                    var ptr1 = enumr1.MoveNext();
-                    var ptr2 = enumr2.MoveNext();
-
-                    if (ptr1 != ptr2)
+                    var index = 0;
+                    while (true)
                     {
-                        yield return new Diff(item1Name, item2Name, $"One value has the value {ptr1} and the other has value {ptr2}.", index);
-                    }
-                    if (!ptr1 || !ptr2)
-                        yield break;
+                        var ptr1 = enumr1.MoveNext();
+                        var ptr2 = enumr2.MoveNext();
 
-                    var data1 = enumr1.Current;
-                    var data2 = enumr2.Current;
+                        if (ptr1 != ptr2)
+                        {
+                            yield return new Diff(item1Name, item2Name, $"One value has the value {ptr1} and the other has value {ptr2}.", index);
+                        }
+                        if (!ptr1 || !ptr2)
+                            yield break;
 
-                    if (compareMode.HasFlag(CompareMode.IgnoreSortOrder))
-                    {
-                        //Find a match, anywhere in the enumerator.
-                        data2 = GetMatchFromList(item1Name, item2Name, data1, o, compareMode, used);
-                    }
+                        var data1 = enumr1.Current;
+                        var data2 = enumr2.Current;
 
-                    var diffs = DoCompare(item1Name, item2Name, data1, data2, compareMode, visited);
-                    foreach (var diff in diffs)
-                    {
-                        yield return new Diff(diff.ObjectName, diff.OtherObjectName, diff.Message, index);
+                        if (compareMode.HasFlag(CompareMode.IgnoreSortOrder))
+                        {
+                            //Find a match, anywhere in the enumerator.
+                            data2 = GetMatchFromList(item1Name, item2Name, data1, o, compareMode, used);
+                        }
+
+                        var diffs = DoCompare(item1Name, item2Name, data1, data2, compareMode, visited);
+                        foreach (var diff in diffs)
+                        {
+                            yield return new Diff(diff.ObjectName, diff.OtherObjectName, diff.Message, index);
+                        }
+                        index++;
                     }
-                    index++;
+                }
+                finally
+                {
+                    // The non-generic IEnumerator has no Dispose, but most
+                    // implementations are disposable. Not disposing leaks
+                    // whatever the source enumerators hold open.
+                    (enumr1 as IDisposable)?.Dispose();
+                    (enumr2 as IDisposable)?.Dispose();
                 }
             }
             else
@@ -203,28 +214,33 @@ namespace Tharga.Toolkit.Compare
 
         private static object GetMatchFromList(string item1Name, string item2Name, object data1, object s2, CompareMode compareMode, List<object> used)
         {
+            // A null enumerator used to leave ptr2 true forever, spinning in the
+            // loop below. Callers always pass an IEnumerable today, so this was
+            // latent rather than live, but returning early is the honest answer.
             var enumr2 = (s2 as IEnumerable)?.GetEnumerator();
-            var ptr2 = true;
-            while (ptr2)
+            if (enumr2 == null) return null;
+
+            try
             {
-                if (enumr2 != null)
+                while (enumr2.MoveNext())
                 {
-                    ptr2 = enumr2.MoveNext();
-                    if (ptr2)
+                    var data2 = enumr2.Current;
+                    var v = new List<object>();
+                    if (!DoCompare(item1Name, item2Name, data1, data2, compareMode, v).Any())
                     {
-                        var data2 = enumr2.Current;
-                        var v = new List<object>();
-                        if (!DoCompare(item1Name, item2Name, data1, data2, compareMode, v).Any())
+                        if (!used.Any(x => ReferenceEquals(x, data2)))
                         {
-                            if (!used.Any(x => ReferenceEquals(x, data2)))
-                            {
-                                used.Add(data2);
-                                return data2;
-                            }
+                            used.Add(data2);
+                            return data2;
                         }
                     }
                 }
             }
+            finally
+            {
+                (enumr2 as IDisposable)?.Dispose();
+            }
+
             return null;
         }
 

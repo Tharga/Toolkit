@@ -220,7 +220,14 @@ namespace Tharga.Toolkit.Timer
                 finally
                 {
                     _cancellationTokenSource.Dispose();
-                    _running = false;
+                    // Written under the same lock that TimerEngine's test-and-set
+                    // guard uses, so a restart on another thread reliably sees the
+                    // timer has stopped. The lock is only ever held for that short
+                    // guard, never while this task body runs, so this cannot deadlock.
+                    lock (_syncRoot)
+                    {
+                        _running = false;
+                    }
                     SetState(TimerState.Stopped);
                 }
             });
