@@ -71,7 +71,14 @@ namespace Tharga.Toolkit
         /// <returns>A hash code for the current instance.</returns>
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            // Must agree with Equals, which compares the concrete type and Id.
+            // Returning base.GetHashCode() gave every instance a reference-based
+            // hash, so two equal values hashed differently and Enumeration was
+            // unusable as a Dictionary key or in a HashSet.
+            unchecked
+            {
+                return ((GetType().AssemblyQualifiedName?.GetHashCode() ?? 0) * 397) ^ Id;
+            }
         }
 
         /// <summary>
