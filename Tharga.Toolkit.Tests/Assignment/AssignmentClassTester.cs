@@ -18,6 +18,7 @@ namespace Tharga.Toolkit.Tests.Assignment
             _fixture = new Fixture();
             _fixture.Register(() => ESomeEnum.B);
             _fixture.Register(() => true);
+            _fixture.Register<ISomeSub>(() => _fixture.Create<SomeSubDto>());
         }
 
         [Fact]

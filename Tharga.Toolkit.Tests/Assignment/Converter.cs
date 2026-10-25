@@ -28,7 +28,9 @@ namespace Tharga.Toolkit.Tests.Assignment
                 Uri = entity.Uri,
                 TimeSpan = entity.TimeSpan,
                 StringField = entity.Text,
-                SomeEnum = entity.SomeEnum
+                SomeEnum = entity.SomeEnum,
+                ISomeSub = entity.ISomeSub,
+                SomeStruct = entity.SomeStruct
             };
         }
 
@@ -39,7 +41,7 @@ namespace Tharga.Toolkit.Tests.Assignment
 
         public static SomeEntity ToEntity(this SomeDto dto)
         {
-            return new SomeEntity(dto.Text, dto.Text, dto.Number, dto.DateTime, dto.Decimal, dto.Double, dto.SomeGeneric, dto.Sub, dto.Texts1, dto.TrueOrFalse, dto.Uri, dto.TimeSpan, dto.SomeEnum);
+            return new SomeEntity(dto.Text, dto.Text, dto.Number, dto.DateTime, dto.Decimal, dto.Double, dto.SomeGeneric, dto.Sub, dto.Texts1, dto.TrueOrFalse, dto.Uri, dto.TimeSpan, dto.SomeEnum, dto.ISomeSub, dto.SomeStruct);
         }
     }
 }

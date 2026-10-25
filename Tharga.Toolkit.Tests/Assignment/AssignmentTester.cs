@@ -19,6 +19,7 @@ namespace Tharga.Toolkit.Tests.Assignment
             _fixture = new Fixture();
             _fixture.Register(() => ESomeEnum.B);
             _fixture.Register(() => true);
+            _fixture.Register<ISomeSub>(() => _fixture.Create<SomeSubDto>());
         }
 
         [Fact]
@@ -288,6 +289,96 @@ namespace Tharga.Toolkit.Tests.Assignment
             assignmentIssues.Should().HaveCount(1);
             assignmentIssues.First().Message.Should().Be("The field 'SomeDto.Sub' is not assigned.");
             dto.IsAssigned().Should().BeFalse();
+        }
+
+        [Fact]
+        public void InterfaceNotAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.ISomeSub, default(ISomeSub)).Create();
+
+            //Assert
+            var assignmentIssues = dto.AssignmentIssues().ToArray();
+            assignmentIssues.Should().HaveCount(1);
+            assignmentIssues.First().Message.Should().Be("The field 'SomeDto.ISomeSub' is not assigned.");
+            dto.IsAssigned().Should().BeFalse();
+        }
+
+        [Fact]
+        public void InterfaceMemberNotAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.ISomeSub, new SomeSubDto { Text = "A", Number = default }).Create();
+
+            //Assert
+            var assignmentIssues = dto.AssignmentIssues().ToArray();
+            assignmentIssues.Should().HaveCount(1);
+            assignmentIssues.First().Message.Should().Be("Value of type Int32 in 'SomeDto.ISomeSub.Number' is not assigned.");
+            dto.IsAssigned().Should().BeFalse();
+        }
+
+        [Fact]
+        public void InterfaceAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.ISomeSub, new SomeSubDto { Text = "A", Number = 1 }).Create();
+
+            //Assert
+            dto.AssignmentIssues().Should().BeEmpty();
+            dto.IsAssigned().Should().BeTrue();
+        }
+
+        [Fact]
+        public void StructNotAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.SomeStruct, default(SomeStruct)).Create();
+
+            //Assert
+            // A struct declared outside System is checked member by member, so a default one reports each member.
+            var messages = dto.AssignmentIssues().Select(x => x.Message).ToArray();
+            messages.Should().BeEquivalentTo(new[]
+            {
+                "The field 'SomeDto.SomeStruct.Text' is not assigned.",
+                "Value of type Int32 in 'SomeDto.SomeStruct.Number' is not assigned."
+            });
+            dto.IsAssigned().Should().BeFalse();
+        }
+
+        [Fact]
+        public void StructMemberNotAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.SomeStruct, new SomeStruct("A", default)).Create();
+
+            //Assert
+            var assignmentIssues = dto.AssignmentIssues().ToArray();
+            assignmentIssues.Should().HaveCount(1);
+            assignmentIssues.First().Message.Should().Be("Value of type Int32 in 'SomeDto.SomeStruct.Number' is not assigned.");
+            dto.IsAssigned().Should().BeFalse();
+        }
+
+        [Fact]
+        public void StructAssigned()
+        {
+            //Arrange
+
+            //Act
+            var dto = _fixture.Build<SomeDto>().With(x => x.SomeStruct, new SomeStruct("A", 1)).Create();
+
+            //Assert
+            dto.AssignmentIssues().Should().BeEmpty();
+            dto.IsAssigned().Should().BeTrue();
         }
 
         [Fact]
