@@ -4,7 +4,7 @@ namespace Tharga.Toolkit.Tests.Assignment.Entities
 {
     public class SomeEntity
     {
-        public SomeEntity(string text, string textNotInUse, int number, DateTime dateTime, decimal @decimal, double d, SomeGeneric<string> someGeneric, SomeSubDto sub, string[] texts, bool trueOrFalse, Uri uri, TimeSpan timeSpan, ESomeEnum someEnum)
+        public SomeEntity(string text, string textNotInUse, int number, DateTime dateTime, decimal @decimal, double d, SomeGeneric<string> someGeneric, SomeSubDto sub, string[] texts, bool trueOrFalse, Uri uri, TimeSpan timeSpan, ESomeEnum someEnum, ISomeSub iSomeSub, SomeStruct someStruct)
         {
             Text = text;
             Number = number;
@@ -18,6 +18,8 @@ namespace Tharga.Toolkit.Tests.Assignment.Entities
             Uri = uri;
             TimeSpan = timeSpan;
             SomeEnum = someEnum;
+            ISomeSub = iSomeSub;
+            SomeStruct = someStruct;
         }
 
         public string Text { get; }
@@ -32,5 +34,7 @@ namespace Tharga.Toolkit.Tests.Assignment.Entities
         public Uri Uri { get; }
         public TimeSpan TimeSpan { get; }
         public ESomeEnum SomeEnum { get; }
+        public ISomeSub ISomeSub { get; }
+        public SomeStruct SomeStruct { get; }
     }
 }

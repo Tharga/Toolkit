@@ -2,7 +2,13 @@
 {
     public struct SomeStruct
     {
-        string Text { get; set; }
-        int Number { get; set; }
+        public SomeStruct(string text, int number)
+        {
+            Text = text;
+            Number = number;
+        }
+
+        public string Text { get; }
+        public int Number { get; }
     }
 }

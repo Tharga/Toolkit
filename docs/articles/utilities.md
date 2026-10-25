@@ -32,6 +32,10 @@ timer.Stop();
 
 States: `Stopped`, `Started`, `Waiting`, `Executing`.
 
+`Start()` and `Stop()` are safe in any order: `Stop()` can be called before `Start()`, more than once, and after the timer has ended. A `Start()` after a `Stop()` first waits for what was left of the interval, so the callback never runs earlier than it was due.
+
+An exception thrown by the callback is passed to `AfterExecuteEvent` in `e.Exception`, and the timer keeps running. An exception thrown by an event handler is passed to `AfterExecuteEvent` the same way, and stops the timer.
+
 ## DateTime and duration
 
 ```csharp
