@@ -88,6 +88,8 @@ timer.StateChangedEvent += (s, e) => { /* Started, Executing, Waiting, Stopped *
 timer.Stop();
 ```
 
+`Start()` and `Stop()` are safe in any order, and a restart waits for what was left of the interval. Exceptions from the callback reach `AfterExecuteEvent` and the timer keeps running; an exception from an event handler reaches `AfterExecuteEvent` too, and stops the timer.
+
 ### Enumerable Extensions
 
 ```csharp

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Tharga.Toolkit.Timer;
@@ -236,5 +238,209 @@ public class ManagedTimerTests
         timer.State.Should().NotBe(ManagedTimer.TimerState.Stopped);
 
         timer.Stop();
+    }
+
+    // The tests below wait on signals raised by the timer, never on fixed sleeps.
+    // The timeout only bounds a failing run, so it is generous.
+    private static readonly TimeSpan SignalTimeout = TimeSpan.FromSeconds(5);
+
+    // Task.Delay can complete a little before its due time when measured with a
+    // Stopwatch (the system timer is coarse), so lower bounds allow for that.
+    private static readonly TimeSpan TimerResolution = TimeSpan.FromMilliseconds(50);
+
+    private static TaskCompletionSource NewSignal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    [Fact]
+    public void Stop_before_Start_does_not_throw()
+    {
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ => Task.CompletedTask);
+
+        var act = () => timer.Stop();
+
+        act.Should().NotThrow();
+        timer.State.Should().Be(ManagedTimer.TimerState.Stopped);
+    }
+
+    [Fact]
+    public async Task Stop_right_after_Start_does_not_throw_and_stops_the_timer()
+    {
+        var stopped = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ => Task.CompletedTask);
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+        var act = () => timer.Stop();
+
+        act.Should().NotThrow();
+        await stopped.Task.WaitAsync(SignalTimeout);
+    }
+
+    [Fact]
+    public async Task Stop_after_the_timer_has_ended_does_not_throw()
+    {
+        var executed = NewSignal();
+        var stopped = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ =>
+        {
+            executed.TrySetResult();
+            return Task.CompletedTask;
+        });
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+        await executed.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+        await stopped.Task.WaitAsync(SignalTimeout);
+
+        var act = () =>
+        {
+            timer.Stop();
+            timer.Stop();
+        };
+
+        act.Should().NotThrow();
+    }
+
+    [Theory]
+    [InlineData(ManagedTimer.Mode.OnTime)]
+    [InlineData(ManagedTimer.Mode.Between)]
+    public async Task Restart_after_a_stop_during_the_wait_waits_for_the_interval(ManagedTimer.Mode mode)
+    {
+        // Several executions first: the old restart path averaged the time per
+        // iteration so far, which only matched the interval on the first one.
+        const int executionsBeforeStop = 3;
+        var interval = TimeSpan.FromMilliseconds(250);
+        var clock = Stopwatch.StartNew();
+        var executions = new ConcurrentQueue<TimeSpan>();
+        var waitingAfterLastExecution = NewSignal();
+        var stopped = NewSignal();
+        var executedAfterRestart = NewSignal();
+
+        var timer = new ManagedTimer(interval, _ =>
+        {
+            executions.Enqueue(clock.Elapsed);
+            if (executions.Count == executionsBeforeStop + 1) executedAfterRestart.TrySetResult();
+            return Task.CompletedTask;
+        }, mode);
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Waiting && executions.Count == executionsBeforeStop) waitingAfterLastExecution.TrySetResult();
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+        await waitingAfterLastExecution.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+        await stopped.Task.WaitAsync(SignalTimeout);
+        timer.Start();
+        await executedAfterRestart.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+
+        // Each execution is at least one interval after the one before it, so the
+        // first one after the restart is no earlier than this.
+        var times = executions.ToArray();
+        var earliest = times[0] + interval * executionsBeforeStop - TimerResolution;
+        times[executionsBeforeStop].Should().BeGreaterThanOrEqualTo(earliest);
+    }
+
+    [Fact]
+    public async Task Start_right_after_a_Stop_during_execution_starts_the_timer_again()
+    {
+        var count = 0;
+        var executing = NewSignal();
+        var release = NewSignal();
+        var executedAgain = NewSignal();
+
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), async _ =>
+        {
+            if (Interlocked.Increment(ref count) == 1)
+            {
+                executing.TrySetResult();
+                await release.Task;
+            }
+            else
+            {
+                executedAgain.TrySetResult();
+            }
+        });
+
+        timer.Start();
+        await executing.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+        timer.Start();
+        release.TrySetResult();
+
+        await executedAgain.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+    }
+
+    [Fact]
+    public async Task Exception_from_an_event_handler_is_reported_through_AfterExecuteEvent_and_stops_the_timer()
+    {
+        var reported = new TaskCompletionSource<AfterExecuteEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stopped = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ => Task.CompletedTask);
+        timer.BeforeExecuteEvent += (_, _) => throw new InvalidOperationException("handler failed");
+        timer.AfterExecuteEvent += (_, e) => reported.TrySetResult(e);
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+
+        var args = await reported.Task.WaitAsync(SignalTimeout);
+        args.Exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("handler failed");
+        await stopped.Task.WaitAsync(SignalTimeout);
+    }
+
+    [Fact]
+    public async Task Exception_from_a_Stopped_state_handler_is_reported_through_AfterExecuteEvent()
+    {
+        var reported = new TaskCompletionSource<AfterExecuteEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var executed = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ =>
+        {
+            executed.TrySetResult();
+            return Task.CompletedTask;
+        });
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) throw new InvalidOperationException("handler failed");
+        };
+        timer.AfterExecuteEvent += (_, e) =>
+        {
+            if (e.Exception != null) reported.TrySetResult(e);
+        };
+
+        timer.Start();
+        await executed.Task.WaitAsync(SignalTimeout);
+        timer.Stop();
+
+        var args = await reported.Task.WaitAsync(SignalTimeout);
+        args.Exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("handler failed");
+    }
+
+    [Fact]
+    public async Task AfterExecuteEvent_handler_that_throws_stops_the_timer()
+    {
+        var stopped = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromMilliseconds(50), _ => Task.CompletedTask);
+        timer.AfterExecuteEvent += (_, _) => throw new InvalidOperationException("handler failed");
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+
+        await stopped.Task.WaitAsync(SignalTimeout);
+        timer.State.Should().Be(ManagedTimer.TimerState.Stopped);
     }
 }

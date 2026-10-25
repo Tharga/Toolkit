@@ -26,6 +26,7 @@ namespace Tharga.Toolkit.Timer
         public TimeSpan Elapsed { get; }
         /// <summary>
         /// Gets the exception thrown during execution, or null if no exception occurred.
+        /// When an exception thrown by another event handler stops the timer, the event is raised with that exception.
         /// </summary>
         public Exception Exception { get; }
         /// <summary>
