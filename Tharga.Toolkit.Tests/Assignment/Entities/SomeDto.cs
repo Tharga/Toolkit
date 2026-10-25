@@ -19,8 +19,6 @@ namespace Tharga.Toolkit.Tests.Assignment.Entities
         public IDictionary<string, string> Texts6 { get; set; }
         public IList<string> Texts7 { get; set; }
         public SomeSubDto Sub { get; set; }
-        //TODO: Test this assignment: public ISomeSub ISomeSub { get; set; }
-        //TODO: Test this assignment: public SomeStruct SomeStruct { get; set; }
         public SomeGeneric<string> SomeGeneric { get; set; }
         public bool TrueOrFalse { get; set; }
         public Uri Uri { get; set; }
