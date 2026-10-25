@@ -2,7 +2,7 @@
 using System.Reflection;
 using AutoFixture;
 using AutoFixture.Kernel;
-using FluentAssertions;
+using AwesomeAssertions;
 using Tharga.Test.Toolkit;
 using Tharga.Toolkit.Tests.Assignment.Entities;
 using Xunit;

@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using AwesomeAssertions;
 using Tharga.Test.Toolkit;
 using Xunit;
 
