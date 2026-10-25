@@ -40,4 +40,11 @@ public class EnumExtensionsTests
         var act = () => SourceEnum.Alpha.MapEnum<int, SourceEnum>();
         act.Should().Throw<InvalidOperationException>();
     }
+
+    [Fact]
+    public void MapEnum_throws_for_non_enum_source_type_and_names_it()
+    {
+        var act = () => 5.MapEnum<TargetEnum, int>();
+        act.Should().Throw<InvalidOperationException>().WithMessage($"The from-type is not an enum, it is of type {typeof(int)}.");
+    }
 }
