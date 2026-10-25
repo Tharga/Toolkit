@@ -34,9 +34,7 @@ namespace Tharga.Toolkit.Tests.Assignment
 
         public static SomeDto ToBrokenDto(this SomeEntity entity)
         {
-            return new SomeDto
-            {
-            };
+            return new SomeDto();
         }
 
         public static SomeEntity ToEntity(this SomeDto dto)

@@ -82,7 +82,7 @@ public class HashStreamTests
         //Assert
         hash.Value.Should().Be(expected);
         var outputData = output.ToArray();
-        outputData.SequenceEqual(inputData);
+        outputData.Should().Equal(inputData);
         Encoding.UTF8.GetString(outputData).Should().Be("A");
     }
 
@@ -90,7 +90,6 @@ public class HashStreamTests
     public async Task ToHashAndOutputAsyncTestInputNull()
     {
         //Arrange
-        var inputData = "A"u8.ToArray();
         MemoryStream input = null;
         var output = new MemoryStream();
 
@@ -176,7 +175,7 @@ public class HashStreamTests
         //Assert
         hash.Value.Should().Be(expected);
         var outputData = output.ToArray();
-        outputData.SequenceEqual(inputData);
+        outputData.Should().Equal(inputData);
         Encoding.UTF8.GetString(outputData).Should().Be("A");
     }
 }

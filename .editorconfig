@@ -1,0 +1,50 @@
+root = true
+
+[*.cs]
+
+# Private static readonly fields hold values that are conceptually constants but
+# cannot be declared `const` (arrays, lookup tables). They are named in PascalCase
+# so they read alongside the real `const` members instead of looking like
+# mutable instance state. Without this, ReSharper's rule asks for `_camelCase`.
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.severity = suggestion
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.applicable_accessibilities = *
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static,readonly
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# The members mirror the algorithm names (MD5, SHA-256, ...) and are public API:
+# renaming them to Md5 or Sha256 would break every consumer.
+[Tharga.Toolkit/HashType.cs]
+resharper_inconsistent_naming_highlighting = none
+
+# The timer event args are public event data. Consumers read these getters in
+# their handlers, which ReSharper cannot see from inside this solution.
+[Tharga.Toolkit.Standard/Timer/*EventArgs.cs]
+resharper_unused_auto_property_accessor_global_highlighting = none
+
+# Compare reads these test entities through reflection.
+[Tharga.Toolkit.Tests/Compare/Entities/*.cs]
+resharper_unused_auto_property_accessor_global_highlighting = none
+
+# Fixtures for the reflection-based assignment tests: their members are reached
+# through reflection (private ones included) or exist only to give a type its shape.
+[Tharga.Toolkit.Tests/Assignment/{ConverterInstance,Entities/*}.cs]
+resharper_unused_member_local_highlighting = none
+resharper_unused_parameter_local_highlighting = none
+
+# These tests pass null on purpose, to pin how each API treats a null input.
+[Tharga.Toolkit.Tests/{Compare/CompareTester,Hash/*Tests,ListExtensionsTest/*Tests}.cs]
+resharper_expression_is_always_null_highlighting = none
+
+# These tests leave a collection empty on purpose, to cover the empty case.
+[{Tharga.Toolkit.Standard.Tests/ObservableConcurrentDictionaryTests,Tharga.Toolkit.Tests/ListExtensionsTest/*Tests}.cs]
+resharper_collection_never_updated_local_highlighting = none
+
+# Each assertion enumerates the deferred TakeChunks result again on purpose; the
+# source is an in-memory collection, so every pass yields the same chunks.
+[Tharga.Toolkit.Tests/ListExtensionsTest/TakeChunksTests.cs]
+resharper_possible_multiple_enumeration_highlighting = none

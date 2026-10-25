@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AwesomeAssertions;
 using Tharga.Toolkit.Compare;
@@ -10,6 +11,8 @@ namespace Tharga.Toolkit.Tests.Compare
 {
     public class CompareTester
     {
+        private const string ExplicitStandardMode = "Standard is passed explicitly to contrast with the IgnoreType case.";
+
         [Fact]
         public void When_comparing_a_date_with_itself()
         {
@@ -169,8 +172,8 @@ namespace Tharga.Toolkit.Tests.Compare
         public void When_comparing_two_arrays_where_one_is_longer_than_the_other()
         {
             // Arrange
-            var d1 = new string[] { "A", "B", "C" };
-            var d2 = new string[] { "A", "B" };
+            var d1 = new[] { "A", "B", "C" };
+            var d2 = new[] { "A", "B" };
 
             // Act
             var diffs = d1.Compare(d2).ToArray();
@@ -183,8 +186,8 @@ namespace Tharga.Toolkit.Tests.Compare
         public void When_comparing_two_arrays_where_one_is_shorter_than_the_other()
         {
             // Arrange
-            var d1 = new string[] { "A", "B" };
-            var d2 = new string[] { "A", "B", "C" };
+            var d1 = new[] { "A", "B" };
+            var d2 = new[] { "A", "B", "C" };
 
             // Act
             var diffs = d1.Compare(d2).ToArray();
@@ -197,8 +200,8 @@ namespace Tharga.Toolkit.Tests.Compare
         public void When_comparing_two_arrays_with_same_length_but_different_values()
         {
             // Arrange
-            var d1 = new string[] { "A", "B", "C" };
-            var d2 = new string[] { "A", "BB", "C" };
+            var d1 = new[] { "A", "B", "C" };
+            var d2 = new[] { "A", "BB", "C" };
 
             // Act
             var diffs = d1.Compare(d2).ToArray();
@@ -749,6 +752,7 @@ namespace Tharga.Toolkit.Tests.Compare
         }
 
         [Fact]
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = ExplicitStandardMode)]
         public void When_comparing_two_different_classes_with_the_same_content_and_the_type_is_not_ignored()
         {
             // Arrange
@@ -763,6 +767,7 @@ namespace Tharga.Toolkit.Tests.Compare
         }
 
         [Fact]
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = ExplicitStandardMode)]
         public void When_comparing_two_different_classes_with_the_same_content_but_different_types_and_the_type_is_not_ignored()
         {
             // Arrange

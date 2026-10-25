@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;
 
+[SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "MapEnum maps by member name, so the fixture enums declare members for their names alone.")]
 public class EnumExtensionsTests
 {
     private enum SourceEnum { Alpha, Beta, Gamma }

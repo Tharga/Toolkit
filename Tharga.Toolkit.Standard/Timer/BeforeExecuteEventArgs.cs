@@ -23,6 +23,6 @@ namespace Tharga.Toolkit.Timer
         /// <summary>
         /// Gets or sets a value indicating whether the upcoming execution should be cancelled.
         /// </summary>
-        public bool Cancel { get; set; } = false;
+        public bool Cancel { get; set; }
     }
 }

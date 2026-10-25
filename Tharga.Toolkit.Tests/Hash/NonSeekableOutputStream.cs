@@ -25,7 +25,7 @@ public class NonSeekableOutputStream : Stream
 
     public override void Flush() { }
 
-    public override Task FlushAsync(CancellationToken cancellationToken = default)
+    public override Task FlushAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

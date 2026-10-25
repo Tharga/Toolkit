@@ -19,7 +19,7 @@ public class DependencyTest : DependencyTestBase
         //act
         var dps = GetDependencies()
             .Where(x => x.Name != "Microsoft.Extensions.DependencyInjection.Abstractions")
-            .Where(x => !x.Name.StartsWith("System."))
+            .Where(x => x.Name?.StartsWith("System.") != true)
             .ToArray();
 
         //Assert
