@@ -1,5 +1,5 @@
 using System;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;
@@ -84,8 +84,8 @@ public class StringExtensionTests
     [Fact]
     public void GetRandomString_returns_string_within_length_range()
     {
-        var result = StringExtension.GetRandomString(8, 16);
-        result.Length.Should().BeInRange(8, 16);
+        var result = StringExtension.GetRandomString(3, 5);
+        result.Length.Should().BeInRange(3, 5);
     }
 
     [Fact]

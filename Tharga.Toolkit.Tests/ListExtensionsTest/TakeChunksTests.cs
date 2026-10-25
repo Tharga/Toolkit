@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Tests.ListExtensionsTest

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;

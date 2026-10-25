@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Tharga.Toolkit.Timer;
 using Xunit;
 

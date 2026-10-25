@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;
@@ -30,21 +30,21 @@ public class OrgNoExtensionsTests
     [Fact]
     public void TryParseOrgNo_returns_false_for_empty()
     {
-        "".TryParseOrgNo(out var orgNo, out var errorType).Should().BeFalse();
+        "".TryParseOrgNo(out _, out var errorType).Should().BeFalse();
         errorType.Should().Be(ErrorType.NoValue);
     }
 
     [Fact]
     public void TryParseOrgNo_returns_false_for_wrong_length()
     {
-        "12345".TryParseOrgNo(out var orgNo, out var errorType).Should().BeFalse();
+        "12345".TryParseOrgNo(out _, out var errorType).Should().BeFalse();
         errorType.Should().Be(ErrorType.InvalidFormat);
     }
 
     [Fact]
     public void TryParseOrgNo_returns_false_for_invalid_check_digit()
     {
-        "5561234560".TryParseOrgNo(out var orgNo, out var errorType).Should().BeFalse();
+        "5561234560".TryParseOrgNo(out _, out var errorType).Should().BeFalse();
         errorType.Should().Be(ErrorType.InvalidCheckDigit);
     }
 

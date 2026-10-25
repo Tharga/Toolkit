@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using AwesomeAssertions;
 using Tharga.Test.Toolkit;
 using Xunit;
 
@@ -19,7 +19,7 @@ public class DependencyTest : DependencyTestBase
         //act
         var dps = GetDependencies()
             .Where(x => x.Name != "Microsoft.Extensions.DependencyInjection.Abstractions")
-            .Where(x => !x.Name.StartsWith("System."))
+            .Where(x => x.Name?.StartsWith("System.") != true)
             .ToArray();
 
         //Assert

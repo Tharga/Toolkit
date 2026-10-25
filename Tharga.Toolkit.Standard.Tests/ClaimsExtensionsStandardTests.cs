@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;
@@ -158,7 +158,7 @@ public class ClaimsExtensionsStandardTests
         var principal = CreatePrincipal(new Claim("email", "test@example.com"));
         principal.AddRoleForDomain("Admin", "example.com");
 
-        var identity = (ClaimsIdentity)principal.Identity;
+        var identity = principal.Identities.Single();
         identity.FindAll(ClaimTypes.Role).Select(c => c.Value).Should().Contain("Admin");
     }
 
@@ -168,7 +168,7 @@ public class ClaimsExtensionsStandardTests
         var principal = CreatePrincipal(new Claim("email", "test@other.com"));
         principal.AddRoleForDomain("Admin", "example.com");
 
-        var identity = (ClaimsIdentity)principal.Identity;
+        var identity = principal.Identities.Single();
         identity.FindAll(ClaimTypes.Role).Should().BeEmpty();
     }
 
@@ -181,7 +181,7 @@ public class ClaimsExtensionsStandardTests
         );
         principal.AddRoleForDomain("Admin", "example.com");
 
-        var identity = (ClaimsIdentity)principal.Identity;
+        var identity = principal.Identities.Single();
         identity.FindAll(ClaimTypes.Role).Where(c => c.Value == "Admin").Should().HaveCount(1);
     }
 

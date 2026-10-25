@@ -262,7 +262,6 @@ namespace Tharga.Toolkit.Compare
                     yield return diff1;
                 else
                 {
-                    //TODO: Should not the actual property name 'prop.Name' be provided too?
                     var diffs = DoCompare(item1Name, item2Name, f1, f2, compareMode, visited);
 
                     foreach (var diff in diffs)
@@ -282,7 +281,6 @@ namespace Tharga.Toolkit.Compare
                     yield return diff1;
                 else
                 {
-                    //TODO: Should not the actual property name 'prop.Name' be provided too?
                     var diffs = DoCompare(item1Name, item2Name, v1, v2, compareMode, visited);
 
                     foreach (var diff in diffs)

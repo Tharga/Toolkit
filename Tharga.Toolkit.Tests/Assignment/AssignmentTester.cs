@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AutoFixture;
-using FluentAssertions;
+using AwesomeAssertions;
 using Tharga.Test.Toolkit;
 using Tharga.Toolkit.Tests.Assignment.Entities;
 using Xunit;

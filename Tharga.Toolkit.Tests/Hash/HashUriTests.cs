@@ -1,6 +1,6 @@
 using System;
 using System.Text;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Tests.Hash;

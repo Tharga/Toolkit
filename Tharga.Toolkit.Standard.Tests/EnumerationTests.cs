@@ -1,5 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Tharga.Toolkit.Standard.Tests;
@@ -45,6 +46,7 @@ public class EnumerationTests
     }
 
     [Fact]
+    [SuppressMessage("ReSharper", "EqualExpressionComparison", Justification = "Equality is reflexive; comparing an instance with itself is the case under test.")]
     public void Equals_returns_true_for_same_instance()
     {
         TestEnumeration.First.Equals(TestEnumeration.First).Should().BeTrue();
@@ -57,6 +59,7 @@ public class EnumerationTests
     }
 
     [Fact]
+    [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global", Justification = "Comparing unrelated enumeration types with the same id is the case under test.")]
     public void Equals_returns_false_for_different_type_same_id()
     {
         TestEnumeration.First.Equals(OtherEnumeration.First).Should().BeFalse();

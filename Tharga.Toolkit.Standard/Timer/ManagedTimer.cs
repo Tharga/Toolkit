@@ -209,11 +209,11 @@ namespace Tharga.Toolkit.Timer
                 }
                 catch (TaskCanceledException)
                 {
-                    //TODO: When this has been triggered, the timer will restart too, fast and try to recall the same iteration once again, without waiting for the delay.
+                    // Known issue: a restart after this re-runs the unfinished iteration without waiting for the delay. See #57
                 }
                 catch (Exception e)
                 {
-                    //TODO: Fire event
+                    // Nothing observes this task, so the console is the only trace of the failure. See #57
                     Console.WriteLine(e);
                     throw;
                 }
