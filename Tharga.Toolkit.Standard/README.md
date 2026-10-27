@@ -168,9 +168,17 @@ var domain = principal.GetEmailDomain();
 var displayName = principal.GetDisplayName();
 // e.g. "daniel.bohlin@example.com" → "Daniel Bohlin"
 
-// Domain-based role assignment
+// Domain-based role assignment (email claim only: email, ClaimTypes.Email or emails;
+// email_verified must be true when present; preferred_username and name are not used)
 principal.AddRoleForDomain("Developer", "example.com", "contoso.com");
+
+// Opt in to preferred_username when no email claim is present (name is never used)
+principal.AddRoleForDomain("Developer",
+    new RoleForDomainOptions { TrustPreferredUsername = true },
+    "example.com");
 ```
+
+Since 1.17, `AddRoleForDomain` no longer uses `preferred_username` or `name` by default. If your identity provider sends the address only in `preferred_username`, add the email claim at the provider or use the opt-in above. Some providers do not verify the email claim, so check what yours guarantees before granting roles by domain.
 
 ### Other Extensions
 

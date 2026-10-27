@@ -98,7 +98,11 @@ namespace Tharga.Toolkit
 
         public static string GetEmailDomain(this IEnumerable<Claim> claims)
         {
-            var email = claims?.GetEmail();
+            return GetDomain(claims?.GetEmail());
+        }
+
+        private static string GetDomain(string email)
+        {
             if (string.IsNullOrEmpty(email)) return null;
 
             try
@@ -109,6 +113,28 @@ namespace Tharga.Toolkit
             {
                 return null;
             }
+        }
+
+        private static string GetEmailForRole(Claim[] claims, RoleForDomainOptions options)
+        {
+            var email = claims.FirstOrDefault(x => x.Type == "email")?.Value;
+            if (string.IsNullOrEmpty(email)) email = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email)) email = claims.FirstOrDefault(x => x.Type == "emails")?.Value.Replace("[\"", "").Replace("\"]", "");
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var emailVerified = claims.FirstOrDefault(x => x.Type == "email_verified")?.Value;
+                if (emailVerified != null && !(bool.TryParse(emailVerified, out var verified) && verified)) return null;
+                return email;
+            }
+
+            if (options.TrustPreferredUsername)
+            {
+                var preferredUsername = claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value;
+                if (preferredUsername?.Contains("@") ?? false) return preferredUsername;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -205,6 +231,9 @@ namespace Tharga.Toolkit
 
         /// <summary>
         /// Add role on the user claim if the users email matches one of the provided list of domains.
+        /// The email is read only from an email claim (<c>email</c>, <see cref="ClaimTypes.Email"/> or <c>emails</c>).
+        /// When an <c>email_verified</c> claim is present it must be <c>true</c>.
+        /// The <c>name</c> and <c>preferred_username</c> claims are not used.
         /// </summary>
         /// <param name="claimsPrincipal"></param>
         /// <param name="role"></param>
@@ -212,11 +241,28 @@ namespace Tharga.Toolkit
         /// <exception cref="ArgumentNullException"></exception>
         public static void AddRoleForDomain(this ClaimsPrincipal claimsPrincipal, string role, params string[] domains)
         {
+            AddRoleForDomain(claimsPrincipal, role, null, domains);
+        }
+
+        /// <summary>
+        /// Add role on the user claim if the users email matches one of the provided list of domains.
+        /// The email is read only from an email claim (<c>email</c>, <see cref="ClaimTypes.Email"/> or <c>emails</c>).
+        /// When an <c>email_verified</c> claim is present it must be <c>true</c>.
+        /// With <see cref="RoleForDomainOptions.TrustPreferredUsername"/> set, <c>preferred_username</c> is used when no email claim is present.
+        /// The <c>name</c> claim is never used.
+        /// </summary>
+        /// <param name="claimsPrincipal"></param>
+        /// <param name="role"></param>
+        /// <param name="options">Options for how the email is resolved. <c>null</c> uses the defaults.</param>
+        /// <param name="domains"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddRoleForDomain(this ClaimsPrincipal claimsPrincipal, string role, RoleForDomainOptions options, params string[] domains)
+        {
             if (claimsPrincipal == null || claimsPrincipal.Identity == null) throw new ArgumentNullException(nameof(claimsPrincipal), "ClaimsPrincipal or its Identity cannot be null.");
 
             var claimsIdentity = (ClaimsIdentity)claimsPrincipal.Identity;
 
-            var emailDomain = claimsIdentity.GetEmailDomain();
+            var emailDomain = GetDomain(GetEmailForRole(claimsIdentity.Claims.ToArray(), options ?? new RoleForDomainOptions()));
             if (string.IsNullOrEmpty(emailDomain)) return;
 
             var roleClaims = claimsIdentity.FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Select(x => x.Value);
