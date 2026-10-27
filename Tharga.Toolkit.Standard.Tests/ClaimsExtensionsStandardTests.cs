@@ -192,6 +192,114 @@ public class ClaimsExtensionsStandardTests
         act.Should().Throw<ArgumentNullException>();
     }
 
+    [Fact]
+    public void AddRoleForDomain_does_not_use_name_claim()
+    {
+        var principal = CreatePrincipal(new Claim("name", "test@example.com"));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_does_not_use_preferred_username_by_default()
+    {
+        var principal = CreatePrincipal(new Claim("preferred_username", "test@example.com"));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_does_not_add_role_when_email_verified_is_false()
+    {
+        var principal = CreatePrincipal(
+            new Claim("email", "test@example.com"),
+            new Claim("email_verified", "false"));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_adds_role_when_email_verified_is_true()
+    {
+        var principal = CreatePrincipal(
+            new Claim("email", "test@example.com"),
+            new Claim("email_verified", "true", ClaimValueTypes.Boolean));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Select(c => c.Value).Should().Contain("Admin");
+    }
+
+    [Fact]
+    public void AddRoleForDomain_uses_mapped_email_claim_type()
+    {
+        var principal = CreatePrincipal(new Claim(ClaimTypes.Email, "test@example.com"));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Select(c => c.Value).Should().Contain("Admin");
+    }
+
+    [Fact]
+    public void AddRoleForDomain_uses_emails_array_claim()
+    {
+        var principal = CreatePrincipal(new Claim("emails", "[\"test@example.com\"]"));
+        principal.AddRoleForDomain("Admin", "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Select(c => c.Value).Should().Contain("Admin");
+    }
+
+    [Fact]
+    public void AddRoleForDomain_uses_preferred_username_when_trusted()
+    {
+        var principal = CreatePrincipal(new Claim("preferred_username", "test@example.com"));
+        principal.AddRoleForDomain("Admin", new RoleForDomainOptions { TrustPreferredUsername = true }, "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Select(c => c.Value).Should().Contain("Admin");
+    }
+
+    [Fact]
+    public void AddRoleForDomain_prefers_email_claim_over_trusted_preferred_username()
+    {
+        var principal = CreatePrincipal(
+            new Claim("email", "test@other.com"),
+            new Claim("preferred_username", "test@example.com"));
+        principal.AddRoleForDomain("Admin", new RoleForDomainOptions { TrustPreferredUsername = true }, "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_does_not_fall_back_to_preferred_username_when_email_is_not_verified()
+    {
+        var principal = CreatePrincipal(
+            new Claim("email", "test@example.com"),
+            new Claim("email_verified", "false"),
+            new Claim("preferred_username", "test@example.com"));
+        principal.AddRoleForDomain("Admin", new RoleForDomainOptions { TrustPreferredUsername = true }, "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_does_not_use_name_claim_when_preferred_username_is_trusted()
+    {
+        var principal = CreatePrincipal(new Claim("name", "test@example.com"));
+        principal.AddRoleForDomain("Admin", new RoleForDomainOptions { TrustPreferredUsername = true }, "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddRoleForDomain_with_null_options_uses_defaults()
+    {
+        var principal = CreatePrincipal(new Claim("preferred_username", "test@example.com"));
+        principal.AddRoleForDomain("Admin", (RoleForDomainOptions)null, "example.com");
+
+        principal.Identities.Single().FindAll(ClaimTypes.Role).Should().BeEmpty();
+    }
+
     // --- GetDisplayName tests ---
 
     [Fact]

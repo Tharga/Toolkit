@@ -54,6 +54,20 @@ var displayName = principal.GetDisplayName();
 principal.AddRoleForDomain("Developer", "thargelion.se", "contoso.com");
 ```
 
+The email used for the match is read only from an email claim: `email`, `ClaimTypes.Email` (the mapped form of `email`), or `emails` (Azure B2C array form). When an `email_verified` claim is present it must be `true`, otherwise no role is added. Unlike `GetEmail()`, it does not fall back to `preferred_username` or `name`.
+
+> Since 1.17, `AddRoleForDomain()` no longer uses `preferred_username` or `name`. Setups where the address arrives only in `preferred_username` should either add the email claim at the identity provider or opt in as shown below.
+
+For identity providers where `preferred_username` is an address the provider controls (for example a sign-in name issued by the directory), opt in to using it when no email claim is present. The `name` claim is never used.
+
+```csharp
+principal.AddRoleForDomain("Developer",
+    new RoleForDomainOptions { TrustPreferredUsername = true },
+    "contoso.com");
+```
+
+Note that some identity providers do not verify the email claim and do not send `email_verified`. Check what your provider guarantees before granting roles from an email domain.
+
 ## IdentityKey (Tharga.Toolkit only)
 
 `IdentityKey` is a base64-encoded JSON map of claim type → value, used to express identity in a portable, serializable form. Build it from claims, verify it later, and look up specific identity types.
