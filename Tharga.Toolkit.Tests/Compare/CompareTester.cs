@@ -1018,5 +1018,89 @@ namespace Tharga.Toolkit.Tests.Compare
             // Assert
             diffs.Should().BeEmpty();
         }
+
+        [Fact]
+        public void When_comparing_a_record_that_equals_a_record_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(1) };
+            var o2 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(2) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_a_struct_that_equals_a_struct_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<SomePoint> { A = new SomePoint(1, 2), B = new SomePoint(1, 2) };
+            var o2 = new SomePair<SomePoint> { A = new SomePoint(1, 2), B = new SomePoint(1, 3) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_the_same_difference_in_two_places_both_are_reported()
+        {
+            // Arrange
+            var o1 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(1) };
+            var o2 = new SomePair<SomeRecord> { A = new SomeRecord(2), B = new SomeRecord(2) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public void When_comparing_an_enum_that_equals_an_enum_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<DayOfWeek> { A = DayOfWeek.Monday, B = DayOfWeek.Monday };
+            var o2 = new SomePair<DayOfWeek> { A = DayOfWeek.Monday, B = DayOfWeek.Tuesday };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_structs_with_a_property_that_returns_the_same_type()
+        {
+            // Arrange
+            var o1 = new SomeAmount(-5);
+            var o2 = new SomeAmount(-6);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(2, "Value differs, and so does Absolute.Value; Absolute.Absolute repeats Absolute and is not compared again");
+        }
+
+        [Fact]
+        public void When_comparing_objects_static_members_are_not_compared()
+        {
+            // Arrange
+            var o1 = new SomeClassWithStaticMember { Data = "A" };
+            var o2 = new OtherClassWithStaticMember { Data = "A" };
+
+            // Act
+            var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType).ToArray();
+
+            // Assert
+            diffs.Should().BeEmpty();
+        }
     }
 }

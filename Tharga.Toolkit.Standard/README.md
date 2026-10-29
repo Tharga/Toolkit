@@ -52,6 +52,10 @@ foreach (var diff in diffs)
 var diffs2 = list1.Compare(list2, CompareExtensions.CompareMode.IgnoreSortOrder);
 ```
 
+Public instance fields and properties are compared; static members are not.
+
+Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported.
+
 ### DateTime Extensions
 
 ```csharp

@@ -13,6 +13,10 @@ foreach (var diff in diffs) Console.WriteLine(diff.Message);
 var ignoreOrder = list1.Compare(list2, CompareExtensions.CompareMode.IgnoreSortOrder);
 ```
 
+Public instance fields and properties are compared; static members are not.
+
+> Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported. Static members are no longer read either; for two objects of the same type they always held the same value.
+
 ## ManagedTimer
 
 Async timer with interval correction (so drift doesn't accumulate), skip detection (knows when an iteration ran late), and rich events for state changes.
