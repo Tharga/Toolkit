@@ -56,6 +56,8 @@ Public instance fields and properties are compared; static members are not.
 
 Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported.
 
+Since 1.18, two `DateTime` values are compared exactly: a difference below one second, down to a single tick, is reported, and so is a different `Kind` with the same clock time. Before, both compared as equal.
+
 ### DateTime Extensions
 
 ```csharp

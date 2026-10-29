@@ -17,6 +17,8 @@ Public instance fields and properties are compared; static members are not.
 
 > Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported. Static members are no longer read either; for two objects of the same type they always held the same value.
 
+> Since 1.18, two `DateTime` values are compared exactly: a difference below one second, down to a single tick, is reported, and so is a different `Kind` with the same clock time. Before, both compared as equal. The message shows both values in round-trip (`O`) format.
+
 ## ManagedTimer
 
 Async timer with interval correction (so drift doesn't accumulate), skip detection (knows when an iteration ran late), and rich events for state changes.

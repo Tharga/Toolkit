@@ -129,6 +129,15 @@ namespace Tharga.Toolkit.Compare
 
         private static IEnumerable<IDiff> CompareDateTimes(object s1, object s2, string item1Name, string item2Name)
         {
+            if (s1 is DateTime d1 && s2 is DateTime d2)
+            {
+                if (d1 != d2)
+                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {d1:O} and differs from {item2Name} with {d2:O} by {Math.Abs((d1 - d2).Ticks)} ticks.", null);
+                else if (d1.Kind != d2.Kind)
+                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {d1:O} with kind {d1.Kind} and differs from {item2Name} with {d2:O} with kind {d2.Kind}.", null);
+                yield break;
+            }
+
             if (!DateTime.TryParse(s1.ToString(), out var i1))
                 yield return new Diff(item1Name, item2Name, $"Cannot parse {item1Name} with value {s1} to an DateTime to compare with {item2Name} with value {s2}.", null);
             else

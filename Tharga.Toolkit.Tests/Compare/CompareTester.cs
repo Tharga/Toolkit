@@ -55,6 +55,48 @@ namespace Tharga.Toolkit.Tests.Compare
         }
 
         [Fact]
+        public void When_comparing_two_dates_that_differ_by_less_than_a_second()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, 100);
+            var o2 = o1.AddMilliseconds(500);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_two_dates_that_differ_by_one_tick()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, 100);
+            var o2 = o1.AddTicks(1);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_two_dates_with_the_same_clock_time_and_different_kind()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+            var o2 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Local);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
         public void When_comparing_an_object_with_null()
         {
             // Arrange
