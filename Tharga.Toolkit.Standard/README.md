@@ -129,7 +129,14 @@ PBKDF2-based password hashing.
 var hash = PasswordHasher.HashPassword("myPassword");
 bool ok = PasswordHasher.VerifyPassword("myPassword", hash);   // true
 bool bad = PasswordHasher.VerifyPassword("wrong", hash);       // false
+
+// After a successful verification, replace a hash that was created with older parameters
+if (ok && PasswordHasher.NeedsRehash(hash)) hash = PasswordHasher.HashPassword("myPassword");
 ```
+
+New hashes use PBKDF2-HMAC-SHA512 with 210,000 iterations (`PasswordHasher.DefaultIterations`), a 16-byte salt and a 32-byte hash, written as `$HASH|V2$SHA512${iterations}${salt}${hash}`, so everything needed to verify a hash is stored with it. Verification compares the hashes in constant time.
+
+Since 1.18, new hashes use this format and these defaults. Hashes in the earlier `$HASH|V1${iterations}${hash}` format (PBKDF2-HMAC-SHA1, 10,000 iterations by default) still verify: if they were created with a non-default `saltSize` or `hashSize`, pass the same values to `VerifyPassword`. `NeedsRehash` returns `true` for them. Versions before 1.18 cannot verify the new format.
 
 ### Collections
 
