@@ -9,7 +9,8 @@ namespace Tharga.Toolkit
     /// </summary>
     public static class EnumerableExtensions
     {
-        private static readonly Lazy<Random> _rng = new Lazy<Random>(() => new Random());
+        // System.Random is not thread-safe, and these methods can be called from any thread.
+        private static readonly Random SharedRandom = new Random();
 
         /// <summary>Selects a random element from the sequence. Returns <c>default</c> if null or empty.</summary>
         public static T TakeRandom<T>(this IEnumerable<T> values)
@@ -17,14 +18,22 @@ namespace Tharga.Toolkit
             if (values == null) return default;
             var list = values.ToArray();
             if (!list.Any()) return default;
-            var index = _rng.Value.Next(list.Length);
+            var index = NextRandom(list.Length);
             return list[index];
         }
 
         /// <summary>Returns the elements of the sequence in random order.</summary>
         public static IEnumerable<T> RandomOrder<T>(this IEnumerable<T> values)
         {
-            return values.OrderBy(_ => _rng.Value.Next());
+            return values.OrderBy(_ => NextRandom(int.MaxValue));
+        }
+
+        private static int NextRandom(int maxValue)
+        {
+            lock (SharedRandom)
+            {
+                return SharedRandom.Next(maxValue);
+            }
         }
 
         /// <summary>Returns all elements except the first.</summary>

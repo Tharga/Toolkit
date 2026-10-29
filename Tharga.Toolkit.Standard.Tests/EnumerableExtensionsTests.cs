@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Xunit;
 
@@ -64,5 +65,21 @@ public class EnumerableExtensionsTests
     {
         var items = new[] { 10, 20, 30 };
         items.TakeRandom().Should().BeOneOf(10, 20, 30);
+    }
+
+    [Fact]
+    public void TakeRandom_and_RandomOrder_stay_random_after_concurrent_use()
+    {
+        var items = Enumerable.Range(0, 100).ToArray();
+
+        Parallel.For(0, 500_000, i =>
+        {
+            if (i % 100 == 0) items.RandomOrder().First();
+            else items.TakeRandom();
+        });
+
+        var picks = Enumerable.Range(0, 1000).Select(_ => items.TakeRandom()).Distinct().Count();
+        picks.Should().BeGreaterThan(1);
+        items.RandomOrder().Should().BeEquivalentTo(items);
     }
 }
