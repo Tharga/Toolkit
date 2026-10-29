@@ -142,7 +142,10 @@ var (before, after) = dict.AddOrUpdate("users", "alice", 42);
 var observable = new ObservableConcurrentDictionary<string, int>();
 observable.CollectionChanged += (s, e) => { /* react to changes */ };
 observable.Add("key", 1);
+observable.TryAdd("key", 2);   // false, the key exists
 ```
+
+Since 1.18, `ObservableConcurrentDictionary` follows the `IDictionary` contract: `Add` throws `ArgumentException` when the key exists (use `TryAdd` to add only when it is missing), and `Remove(KeyValuePair)` removes only when the value matches too. Setting the indexer for a new key raises `Add` with `Count` and `Keys` changes; for an existing key it raises `Replace` with the old value. Before, `Add` ignored an existing key, `Remove(KeyValuePair)` removed by key alone, and the indexer always raised `Replace` with the key as the old item.
 
 ### Semaphore Executor
 
