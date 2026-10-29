@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Xunit;
@@ -85,5 +88,64 @@ public class SemaphoreExecutorTests
 
         // With different keys, at least 2 should have run concurrently
         maxConcurrent.Should().BeGreaterThanOrEqualTo(2);
+    }
+
+    private static readonly TimeSpan SignalTimeout = TimeSpan.FromSeconds(5);
+
+    [Fact(Timeout = 20000)]
+    public async Task ExecuteAsync_on_separate_executors_with_the_same_key_does_not_block()
+    {
+        var first = new SemaphoreExecutor<string>();
+        var second = new SemaphoreExecutor<string>();
+        var firstIsRunning = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseFirst = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var firstTask = first.ExecuteAsync("separate", async () =>
+        {
+            firstIsRunning.TrySetResult(true);
+            return await releaseFirst.Task;
+        });
+        await firstIsRunning.Task.WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+
+        var result = await second.ExecuteAsync("separate", () => Task.FromResult(2)).WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+
+        result.Should().Be(2);
+        releaseFirst.TrySetResult(true);
+        await firstTask.WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+    }
+
+    [Fact(Timeout = 20000)]
+    public async Task ExecuteAsync_nested_on_another_executor_with_the_same_key_completes()
+    {
+        var outer = new SemaphoreExecutor<string>();
+        var inner = new SemaphoreExecutor<string>();
+
+        var result = await outer.ExecuteAsync("nested", () => inner.ExecuteAsync("nested", () => Task.FromResult(1))).WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+
+        result.Should().Be(1);
+    }
+
+    [Fact(Timeout = 60000)]
+    public async Task ExecuteAsync_same_key_never_runs_concurrently_while_entries_are_added_and_removed()
+    {
+        var executor = new SemaphoreExecutor<int>();
+        var running = new int[4];
+        var overlaps = 0;
+
+        async Task<int> Work(int key)
+        {
+            return await executor.ExecuteAsync(key, async () =>
+            {
+                if (Interlocked.Increment(ref running[key]) > 1) Interlocked.Increment(ref overlaps);
+                await Task.Yield();
+                Interlocked.Decrement(ref running[key]);
+                return key;
+            });
+        }
+
+        var tasks = Enumerable.Range(0, 100_000).Select(i => Task.Run(() => Work(i % running.Length))).ToArray();
+        await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(50), TestContext.Current.CancellationToken);
+
+        overlaps.Should().Be(0);
     }
 }

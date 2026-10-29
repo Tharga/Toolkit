@@ -443,4 +443,47 @@ public class ManagedTimerTests
         await stopped.Task.WaitAsync(SignalTimeout);
         timer.State.Should().Be(ManagedTimer.TimerState.Stopped);
     }
+
+    [Fact]
+    public void Constructor_throws_for_zero_interval()
+    {
+        var act = () => new ManagedTimer(TimeSpan.Zero, _ => Task.CompletedTask);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Interval_setter_throws_for_an_interval_that_is_not_positive(long ticks)
+    {
+        var timer = new ManagedTimer(TimeSpan.FromSeconds(1), _ => Task.CompletedTask);
+
+        var act = () => timer.Interval = TimeSpan.FromTicks(ticks);
+
+        act.Should().Throw<ArgumentException>();
+        timer.Interval.Should().Be(TimeSpan.FromSeconds(1));
+    }
+
+    [Fact(Timeout = 20000)]
+    public async Task Interval_shorter_than_the_skip_calculation_keeps_executing_and_can_be_stopped()
+    {
+        var executions = 0;
+        var executedTwice = NewSignal();
+        var stopped = NewSignal();
+        var timer = new ManagedTimer(TimeSpan.FromTicks(1), _ =>
+        {
+            if (Interlocked.Increment(ref executions) >= 2) executedTwice.TrySetResult();
+            return Task.CompletedTask;
+        });
+        timer.StateChangedEvent += (_, e) =>
+        {
+            if (e.State == ManagedTimer.TimerState.Stopped) stopped.TrySetResult();
+        };
+
+        timer.Start();
+        await executedTwice.Task.WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+        timer.Stop();
+
+        await stopped.Task.WaitAsync(SignalTimeout, TestContext.Current.CancellationToken);
+    }
 }

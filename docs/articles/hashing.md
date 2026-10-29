@@ -45,19 +45,26 @@ var decoded = Base32Encoding.Decode(encoded);
 
 ## Password hashing (PBKDF2)
 
-`PasswordHasher` derives a PBKDF2 hash, prepends the salt, and packages everything into a single string. Verification re-derives and compares in constant time.
+`PasswordHasher` derives a PBKDF2 hash and packages the algorithm, the iteration count, the salt and the hash into a single string. Verification re-derives and compares in constant time.
 
 ```csharp
 var hash = PasswordHasher.HashPassword("secret");
 bool ok  = PasswordHasher.VerifyPassword("secret", hash);   // true
 bool bad = PasswordHasher.VerifyPassword("wrong",  hash);   // false
+
+// After a successful verification, replace a hash that was created with older parameters
+if (ok && PasswordHasher.NeedsRehash(hash)) hash = PasswordHasher.HashPassword("secret");
 ```
+
+New hashes use PBKDF2-HMAC-SHA512 with 210,000 iterations (`PasswordHasher.DefaultIterations`), a 16-byte salt and a 32-byte hash, written as `$HASH|V2$SHA512${iterations}${salt}${hash}` with the salt and hash in Base64.
+
+> Since 1.18, new hashes use this format and these defaults. Hashes in the earlier `$HASH|V1${iterations}${hash}` format (PBKDF2-HMAC-SHA1, 10,000 iterations by default) still verify: if they were created with a non-default `saltSize` or `hashSize`, pass the same values to `VerifyPassword`. `NeedsRehash` returns `true` for them. Versions before 1.18 cannot verify the new format, so upgrade every application that reads the hashes before any of them writes new ones.
 
 This is the Standard package's per-process surface — same algorithm, no DI, no options.
 
 ## API key service (Tharga.Toolkit only)
 
-For backend-issued API keys, `ApiKeyService` builds, encrypts, verifies, and extracts the username from a key. It's the same PBKDF2 base, packaged for DI registration and configurable iteration count.
+For backend-issued API keys, `ApiKeyService` builds, encrypts, verifies, and extracts the username from a key. It's the same PBKDF2 base, packaged for DI registration and configurable iteration count. Since 1.18, `Encrypt` writes the `V2` format above with the configured `Iterations` (default 10,000), and `Verify` still accepts keys hashed in the earlier format.
 
 ```csharp
 // Register with code-based options

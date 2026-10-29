@@ -11,8 +11,6 @@ namespace Tharga.Toolkit;
 /// </summary>
 public static class EnumerableExtensionsAsync
 {
-    private static readonly Lazy<Random> _rng = new(() => new Random());
-
     /// <summary>
     /// Selects a random element from an async sequence using reservoir sampling.
     /// </summary>
@@ -28,7 +26,7 @@ public static class EnumerableExtensionsAsync
         while (await enumerator.MoveNextAsync())
         {
             count++;
-            if (_rng.Value.Next(count) == 0)
+            if (Random.Shared.Next(count) == 0)
             {
                 result = enumerator.Current;
             }
@@ -52,7 +50,7 @@ public static class EnumerableExtensionsAsync
         //Fisher–Yates shuffle
         for (var i = list.Count - 1; i > 0; i--)
         {
-            var j = _rng.Value.Next(i + 1);
+            var j = Random.Shared.Next(i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
 

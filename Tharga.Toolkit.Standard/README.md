@@ -52,6 +52,12 @@ foreach (var diff in diffs)
 var diffs2 = list1.Compare(list2, CompareExtensions.CompareMode.IgnoreSortOrder);
 ```
 
+Public instance fields and properties are compared; static members are not.
+
+Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported.
+
+Since 1.18, two `DateTime` values are compared exactly: a difference below one second, down to a single tick, is reported, and so is a different `Kind` with the same clock time. Before, both compared as equal.
+
 ### DateTime Extensions
 
 ```csharp
@@ -90,6 +96,8 @@ timer.Stop();
 
 `Start()` and `Stop()` are safe in any order, and a restart waits for what was left of the interval. Exceptions from the callback reach `AfterExecuteEvent` and the timer keeps running; an exception from an event handler reaches `AfterExecuteEvent` too, and stops the timer.
 
+The interval must be larger than zero. Since 1.18, a zero interval passed to the constructor, and a zero or negative one set through `Interval`, throws `ArgumentOutOfRangeException`.
+
 ### Enumerable Extensions
 
 ```csharp
@@ -121,7 +129,14 @@ PBKDF2-based password hashing.
 var hash = PasswordHasher.HashPassword("myPassword");
 bool ok = PasswordHasher.VerifyPassword("myPassword", hash);   // true
 bool bad = PasswordHasher.VerifyPassword("wrong", hash);       // false
+
+// After a successful verification, replace a hash that was created with older parameters
+if (ok && PasswordHasher.NeedsRehash(hash)) hash = PasswordHasher.HashPassword("myPassword");
 ```
+
+New hashes use PBKDF2-HMAC-SHA512 with 210,000 iterations (`PasswordHasher.DefaultIterations`), a 16-byte salt and a 32-byte hash, written as `$HASH|V2$SHA512${iterations}${salt}${hash}`, so everything needed to verify a hash is stored with it. Verification compares the hashes in constant time.
+
+Since 1.18, new hashes use this format and these defaults. Hashes in the earlier `$HASH|V1${iterations}${hash}` format (PBKDF2-HMAC-SHA1, 10,000 iterations by default) still verify: if they were created with a non-default `saltSize` or `hashSize`, pass the same values to `VerifyPassword`. `NeedsRehash` returns `true` for them. Versions before 1.18 cannot verify the new format.
 
 ### Collections
 
@@ -134,7 +149,10 @@ var (before, after) = dict.AddOrUpdate("users", "alice", 42);
 var observable = new ObservableConcurrentDictionary<string, int>();
 observable.CollectionChanged += (s, e) => { /* react to changes */ };
 observable.Add("key", 1);
+observable.TryAdd("key", 2);   // false, the key exists
 ```
+
+Since 1.18, `ObservableConcurrentDictionary` follows the `IDictionary` contract: `Add` throws `ArgumentException` when the key exists (use `TryAdd` to add only when it is missing), and `Remove(KeyValuePair)` removes only when the value matches too. Setting the indexer for a new key raises `Add` with `Count` and `Keys` changes; for an existing key it raises `Replace` with the old value. Before, `Add` ignored an existing key, `Remove(KeyValuePair)` removed by key alone, and the indexer always raised `Replace` with the key as the old item.
 
 ### Semaphore Executor
 
@@ -149,6 +167,8 @@ var result = await executor.ExecuteAsync("user-123", async () =>
 });
 ```
 
+Since 1.18, each executor has its own locks. Before, every `SemaphoreExecutor<TKey>` with the same `TKey` shared them, so unrelated executors blocked each other and a call from one into another deadlocked. Code that must not run at the same time for a key now has to share one executor instance, for example a singleton. The lock is not reentrant: calling the same executor with the same key from inside its own action waits forever.
+
 ### Claims Extensions
 
 Extract identity, email, and display name from `ClaimsPrincipal`, `ClaimsIdentity`, or raw claims.
@@ -157,7 +177,7 @@ Extract identity, email, and display name from `ClaimsPrincipal`, `ClaimsIdentit
 // Identity extraction (checks sub, oid, nameid, uid, NameIdentifier)
 var (identity, type) = principal.GetIdentity();
 
-// Email extraction (checks email, emails, preferred_username, name)
+// Email extraction (checks email, ClaimTypes.Email, emails, preferred_username, name)
 var email = principal.GetEmail();
 var domain = principal.GetEmailDomain();
 

@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Tharga.Toolkit.Compare
 {
@@ -10,6 +12,8 @@ namespace Tharga.Toolkit.Compare
     /// </summary>
     public static class CompareExtensions
     {
+        private const BindingFlags InstanceMembers = BindingFlags.Public | BindingFlags.Instance;
+
         /// <summary>
         /// Specifies the mode used when comparing objects.
         /// </summary>
@@ -39,10 +43,10 @@ namespace Tharga.Toolkit.Compare
         /// <returns>An enumerable of <see cref="IDiff"/> representing the differences between the two objects.</returns>
         public static IEnumerable<IDiff> Compare(this object s1, object s2, CompareMode compareMode = CompareMode.Standard)
         {
-            return DoCompare(null, null, s1, s2, compareMode, new List<object>());
+            return DoCompare(null, null, s1, s2, compareMode, new VisitedObjects());
         }
 
-        private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, List<object> visited)
+        private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
         {
             if (ReferenceEquals(s1, s2))
                 yield break;
@@ -125,6 +129,15 @@ namespace Tharga.Toolkit.Compare
 
         private static IEnumerable<IDiff> CompareDateTimes(object s1, object s2, string item1Name, string item2Name)
         {
+            if (s1 is DateTime d1 && s2 is DateTime d2)
+            {
+                if (d1 != d2)
+                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {d1:O} and differs from {item2Name} with {d2:O} by {Math.Abs((d1 - d2).Ticks)} ticks.", null);
+                else if (d1.Kind != d2.Kind)
+                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {d1:O} with kind {d1.Kind} and differs from {item2Name} with {d2:O} with kind {d2.Kind}.", null);
+                yield break;
+            }
+
             if (!DateTime.TryParse(s1.ToString(), out var i1))
                 yield return new Diff(item1Name, item2Name, $"Cannot parse {item1Name} with value {s1} to an DateTime to compare with {item2Name} with value {s2}.", null);
             else
@@ -136,7 +149,7 @@ namespace Tharga.Toolkit.Compare
             }
         }
 
-        private static IEnumerable<IDiff> CompareValueTypes(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, List<object> visited)
+        private static IEnumerable<IDiff> CompareValueTypes(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
         {
             var itemHasDiffs = false;
 
@@ -146,9 +159,6 @@ namespace Tharga.Toolkit.Compare
                 yield return diff2;
             }
 
-            visited.Add(s1);
-            visited.Add(s2);
-
             if (!itemHasDiffs)
             {
                 if (s1.ToString() != s2.ToString())
@@ -156,7 +166,7 @@ namespace Tharga.Toolkit.Compare
             }
         }
 
-        private static IEnumerable<IDiff> CompareReferenceTypes(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, List<object> visited)
+        private static IEnumerable<IDiff> CompareReferenceTypes(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
         {
             if (s1 is IEnumerable enumerable && s2 is IEnumerable o)
             {
@@ -225,7 +235,7 @@ namespace Tharga.Toolkit.Compare
                 while (enumr2.MoveNext())
                 {
                     var data2 = enumr2.Current;
-                    var v = new List<object>();
+                    var v = new VisitedObjects();
                     if (!DoCompare(item1Name, item2Name, data1, data2, compareMode, v).Any())
                     {
                         if (!used.Any(x => ReferenceEquals(x, data2)))
@@ -244,50 +254,57 @@ namespace Tharga.Toolkit.Compare
             return null;
         }
 
-        private static IEnumerable<IDiff> CompareMembers(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, List<object> visited)
+        private static IEnumerable<IDiff> CompareMembers(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
         {
             if (visited.Contains(s1) || visited.Contains(s2))
                 yield break;
 
-            visited.Add(s1);
-            visited.Add(s2);
-
-            var fields = s1.GetType().GetFields();
-            foreach (var field in fields)
+            visited.Enter(s1);
+            visited.Enter(s2);
+            try
             {
-                var f1 = field.GetValue(s1);
-
-                var f2 = GetValueFromPropertyOrField(item1Name, item2Name, s2, field.Name, out var diff1);
-                if (f2 == null && diff1 != null)
-                    yield return diff1;
-                else
+                var fields = s1.GetType().GetFields(InstanceMembers);
+                foreach (var field in fields)
                 {
-                    var diffs = DoCompare(item1Name, item2Name, f1, f2, compareMode, visited);
+                    var f1 = field.GetValue(s1);
 
-                    foreach (var diff in diffs)
+                    var f2 = GetValueFromPropertyOrField(item1Name, item2Name, s2, field.Name, out var diff1);
+                    if (f2 == null && diff1 != null)
+                        yield return diff1;
+                    else
                     {
-                        yield return diff;
+                        var diffs = DoCompare(item1Name, item2Name, f1, f2, compareMode, visited);
+
+                        foreach (var diff in diffs)
+                        {
+                            yield return diff;
+                        }
+                    }
+                }
+
+                var tp = s1.GetType();
+                var props = tp.GetProperties(InstanceMembers);
+                foreach (var prop in props)
+                {
+                    var v1 = prop.GetValue(s1, null);
+                    var v2 = GetValueFromPropertyOrField(item1Name, item2Name, s2, prop.Name, out var diff1);
+                    if (v2 == null && diff1 != null)
+                        yield return diff1;
+                    else
+                    {
+                        var diffs = DoCompare(item1Name, item2Name, v1, v2, compareMode, visited);
+
+                        foreach (var diff in diffs)
+                        {
+                            yield return diff;
+                        }
                     }
                 }
             }
-
-            var tp = s1.GetType();
-            var props = tp.GetProperties();
-            foreach (var prop in props)
+            finally
             {
-                var v1 = prop.GetValue(s1, null);
-                var v2 = GetValueFromPropertyOrField(item1Name, item2Name, s2, prop.Name, out var diff1);
-                if (v2 == null && diff1 != null)
-                    yield return diff1;
-                else
-                {
-                    var diffs = DoCompare(item1Name, item2Name, v1, v2, compareMode, visited);
-
-                    foreach (var diff in diffs)
-                    {
-                        yield return diff;
-                    }
-                }
+                visited.Leave(s2);
+                visited.Leave(s1);
             }
         }
 
@@ -311,6 +328,43 @@ namespace Tharga.Toolkit.Compare
 
             diff = new Diff(item1Name, item2Name, $"Cannot find the property or field named {name} in object of type {s2.GetType()}.", null);
             return null;
+        }
+
+        // Ends cycles. A boxed value type is a new object on every read, so it is matched by value, and only while its own members are compared.
+        private sealed class VisitedObjects
+        {
+            private readonly HashSet<object> _references = new HashSet<object>(ReferenceComparer.Instance);
+            private readonly List<object> _valuesInProgress = new List<object>();
+
+            public bool Contains(object item)
+            {
+                return item.GetType().IsValueType
+                    ? _valuesInProgress.Any(x => x.GetType() == item.GetType() && x.Equals(item))
+                    : _references.Contains(item);
+            }
+
+            public void Enter(object item)
+            {
+                if (item.GetType().IsValueType)
+                    _valuesInProgress.Add(item);
+                else
+                    _references.Add(item);
+            }
+
+            public void Leave(object item)
+            {
+                if (item.GetType().IsValueType)
+                    _valuesInProgress.RemoveAt(_valuesInProgress.Count - 1);
+            }
+        }
+
+        private sealed class ReferenceComparer : IEqualityComparer<object>
+        {
+            public static readonly ReferenceComparer Instance = new ReferenceComparer();
+
+            public new bool Equals(object x, object y) => ReferenceEquals(x, y);
+
+            public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using AwesomeAssertions;
 using Xunit;
@@ -174,5 +176,107 @@ public class ObservableConcurrentDictionaryTests
         }
 
         items.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Add_throws_when_the_key_exists()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        dict.Add("a", 1);
+
+        var act = () => dict.Add("a", 2);
+
+        act.Should().Throw<ArgumentException>();
+        dict["a"].Should().Be(1);
+    }
+
+    [Fact]
+    public void Remove_pair_with_a_different_value_does_not_remove()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        dict.Add("a", 1);
+        NotifyCollectionChangedEventArgs captured = null;
+        dict.CollectionChanged += (_, e) => captured = e;
+
+        var removed = ((ICollection<KeyValuePair<string, int>>)dict).Remove(new KeyValuePair<string, int>("a", 999));
+
+        removed.Should().BeFalse();
+        dict["a"].Should().Be(1);
+        captured.Should().BeNull();
+    }
+
+    [Fact]
+    public void Remove_pair_with_the_matching_value_removes_and_fires_Remove()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        dict.Add("a", 1);
+        NotifyCollectionChangedEventArgs captured = null;
+        dict.CollectionChanged += (_, e) => captured = e;
+
+        var removed = ((ICollection<KeyValuePair<string, int>>)dict).Remove(new KeyValuePair<string, int>("a", 1));
+
+        removed.Should().BeTrue();
+        dict.ContainsKey("a").Should().BeFalse();
+        captured.Action.Should().Be(NotifyCollectionChangedAction.Remove);
+    }
+
+    [Fact]
+    public void Indexer_set_for_a_new_key_fires_Add_and_Count()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        NotifyCollectionChangedEventArgs captured = null;
+        var propertyNames = new List<string>();
+        dict.CollectionChanged += (_, e) => captured = e;
+        dict.PropertyChanged += (_, e) => propertyNames.Add(e.PropertyName);
+
+        dict["new"] = 5;
+
+        captured.Action.Should().Be(NotifyCollectionChangedAction.Add);
+        captured.NewItems[0].Should().Be(5);
+        propertyNames.Should().Contain(["Count", "Keys", "Values"]);
+    }
+
+    [Fact]
+    public void Indexer_set_for_an_existing_key_fires_Replace_with_the_old_value()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        dict.Add("key", 1);
+        NotifyCollectionChangedEventArgs captured = null;
+        dict.CollectionChanged += (_, e) => captured = e;
+
+        dict["key"] = 99;
+
+        captured.Action.Should().Be(NotifyCollectionChangedAction.Replace);
+        captured.NewItems[0].Should().Be(99);
+        captured.OldItems[0].Should().Be(1);
+    }
+
+    [Fact]
+    public void TryAdd_adds_a_new_key_and_fires_Add()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        NotifyCollectionChangedEventArgs captured = null;
+        dict.CollectionChanged += (_, e) => captured = e;
+
+        var added = dict.TryAdd("a", 1);
+
+        added.Should().BeTrue();
+        dict["a"].Should().Be(1);
+        captured.Action.Should().Be(NotifyCollectionChangedAction.Add);
+    }
+
+    [Fact]
+    public void TryAdd_returns_false_for_an_existing_key_and_fires_nothing()
+    {
+        var dict = new ObservableConcurrentDictionary<string, int>();
+        dict.Add("a", 1);
+        NotifyCollectionChangedEventArgs captured = null;
+        dict.CollectionChanged += (_, e) => captured = e;
+
+        var added = dict.TryAdd("a", 2);
+
+        added.Should().BeFalse();
+        dict["a"].Should().Be(1);
+        captured.Should().BeNull();
     }
 }

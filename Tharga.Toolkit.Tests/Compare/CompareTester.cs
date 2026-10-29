@@ -55,6 +55,48 @@ namespace Tharga.Toolkit.Tests.Compare
         }
 
         [Fact]
+        public void When_comparing_two_dates_that_differ_by_less_than_a_second()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, 100);
+            var o2 = o1.AddMilliseconds(500);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_two_dates_that_differ_by_one_tick()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, 100);
+            var o2 = o1.AddTicks(1);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_two_dates_with_the_same_clock_time_and_different_kind()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+            var o2 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Local);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
         public void When_comparing_an_object_with_null()
         {
             // Arrange
@@ -1014,6 +1056,90 @@ namespace Tharga.Toolkit.Tests.Compare
 
             // Act
             var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType | CompareExtensions.CompareMode.IgnoreSortOrder).ToArray();
+
+            // Assert
+            diffs.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_comparing_a_record_that_equals_a_record_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(1) };
+            var o2 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(2) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_a_struct_that_equals_a_struct_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<SomePoint> { A = new SomePoint(1, 2), B = new SomePoint(1, 2) };
+            var o2 = new SomePair<SomePoint> { A = new SomePoint(1, 2), B = new SomePoint(1, 3) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_the_same_difference_in_two_places_both_are_reported()
+        {
+            // Arrange
+            var o1 = new SomePair<SomeRecord> { A = new SomeRecord(1), B = new SomeRecord(1) };
+            var o2 = new SomePair<SomeRecord> { A = new SomeRecord(2), B = new SomeRecord(2) };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public void When_comparing_an_enum_that_equals_an_enum_compared_earlier()
+        {
+            // Arrange
+            var o1 = new SomePair<DayOfWeek> { A = DayOfWeek.Monday, B = DayOfWeek.Monday };
+            var o2 = new SomePair<DayOfWeek> { A = DayOfWeek.Monday, B = DayOfWeek.Tuesday };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_comparing_structs_with_a_property_that_returns_the_same_type()
+        {
+            // Arrange
+            var o1 = new SomeAmount(-5);
+            var o2 = new SomeAmount(-6);
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(2, "Value differs, and so does Absolute.Value; Absolute.Absolute repeats Absolute and is not compared again");
+        }
+
+        [Fact]
+        public void When_comparing_objects_static_members_are_not_compared()
+        {
+            // Arrange
+            var o1 = new SomeClassWithStaticMember { Data = "A" };
+            var o2 = new OtherClassWithStaticMember { Data = "A" };
+
+            // Act
+            var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType).ToArray();
 
             // Assert
             diffs.Should().BeEmpty();

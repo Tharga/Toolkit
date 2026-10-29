@@ -13,6 +13,12 @@ foreach (var diff in diffs) Console.WriteLine(diff.Message);
 var ignoreOrder = list1.Compare(list2, CompareExtensions.CompareMode.IgnoreSortOrder);
 ```
 
+Public instance fields and properties are compared; static members are not.
+
+> Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported. Static members are no longer read either; for two objects of the same type they always held the same value.
+
+> Since 1.18, two `DateTime` values are compared exactly: a difference below one second, down to a single tick, is reported, and so is a different `Kind` with the same clock time. Before, both compared as equal. The message shows both values in round-trip (`O`) format.
+
 ## ManagedTimer
 
 Async timer with interval correction (so drift doesn't accumulate), skip detection (knows when an iteration ran late), and rich events for state changes.
@@ -35,6 +41,10 @@ States: `Stopped`, `Started`, `Waiting`, `Executing`.
 `Start()` and `Stop()` are safe in any order: `Stop()` can be called before `Start()`, more than once, and after the timer has ended. A `Start()` after a `Stop()` first waits for what was left of the interval, so the callback never runs earlier than it was due.
 
 An exception thrown by the callback is passed to `AfterExecuteEvent` in `e.Exception`, and the timer keeps running. An exception thrown by an event handler is passed to `AfterExecuteEvent` the same way, and stops the timer.
+
+The interval must be larger than zero.
+
+> Since 1.18, a zero interval passed to the constructor, and a zero or negative one set through `Interval`, throws `ArgumentOutOfRangeException`. Before, such a timer executed once and then never waited again.
 
 ## DateTime and duration
 
@@ -108,7 +118,10 @@ var (before, after) = dict.AddOrUpdate("users", "alice", 42);
 var observable = new ObservableConcurrentDictionary<string, int>();
 observable.CollectionChanged += (s, e) => { /* react */ };
 observable.Add("key", 1);
+observable.TryAdd("key", 2);   // false, the key exists
 ```
+
+> Since 1.18, `ObservableConcurrentDictionary` follows the `IDictionary` contract: `Add` throws `ArgumentException` when the key exists (use `TryAdd` to add only when it is missing), and `Remove(KeyValuePair)` removes only when the value matches too. Setting the indexer for a new key raises `Add` with `Count` and `Keys` changes; for an existing key it raises `Replace` with the old value. Before, `Add` ignored an existing key, `Remove(KeyValuePair)` removed by key alone, and the indexer always raised `Replace` with the key as the old item.
 
 ## SemaphoreExecutor — key-based concurrency
 
@@ -122,6 +135,10 @@ var result = await executor.ExecuteAsync("user-123", async () =>
     return await ProcessAsync();
 });
 ```
+
+Share one executor instance (for example register it as a singleton) between the callers that must be serialized. The lock is not reentrant: calling the same executor with the same key from inside its own action waits forever.
+
+> Since 1.18, each executor has its own locks. Before, every `SemaphoreExecutor<TKey>` with the same `TKey` shared them, so unrelated executors blocked each other and a call from one into another deadlocked. Code that created a new executor per call and relied on that sharing has to keep one instance instead.
 
 ## Smart Enum
 

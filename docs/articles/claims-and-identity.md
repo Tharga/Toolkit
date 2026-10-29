@@ -22,7 +22,9 @@ var all = principal.Claims.GetIdentities();       // every match
 
 ## Email
 
-`GetEmail()` checks `email`, then `emails` (Azure B2C array form), then `preferred_username` if it contains `@`, then `name` if it contains `@`. `GetEmailDomain()` extracts just the host portion.
+`GetEmail()` checks `email`, then `ClaimTypes.Email` (the mapped form of `email`), then `emails` (Azure B2C array form), then `preferred_username` if it contains `@`, then `name` if it contains `@`. `GetEmailDomain()` extracts just the host portion.
+
+> Since 1.18, `GetEmail()` also reads `ClaimTypes.Email`, which is how `email` arrives when ASP.NET Core's inbound claim mapping is on. Before, it fell back to `preferred_username` or `name` in that setup, so `GetEmail()`, `GetEmailDomain()` and `GetDisplayName()` could return a value other than the user's email.
 
 ```csharp
 var email  = principal.GetEmail();          // "alice@example.com"
