@@ -90,6 +90,8 @@ timer.Stop();
 
 `Start()` and `Stop()` are safe in any order, and a restart waits for what was left of the interval. Exceptions from the callback reach `AfterExecuteEvent` and the timer keeps running; an exception from an event handler reaches `AfterExecuteEvent` too, and stops the timer.
 
+The interval must be larger than zero. Since 1.18, a zero interval passed to the constructor, and a zero or negative one set through `Interval`, throws `ArgumentOutOfRangeException`.
+
 ### Enumerable Extensions
 
 ```csharp

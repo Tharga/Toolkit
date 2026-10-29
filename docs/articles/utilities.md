@@ -36,6 +36,10 @@ States: `Stopped`, `Started`, `Waiting`, `Executing`.
 
 An exception thrown by the callback is passed to `AfterExecuteEvent` in `e.Exception`, and the timer keeps running. An exception thrown by an event handler is passed to `AfterExecuteEvent` the same way, and stops the timer.
 
+The interval must be larger than zero.
+
+> Since 1.18, a zero interval passed to the constructor, and a zero or negative one set through `Interval`, throws `ArgumentOutOfRangeException`. Before, such a timer executed once and then never waited again.
+
 ## DateTime and duration
 
 ```csharp

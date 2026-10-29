@@ -36,6 +36,8 @@ namespace Tharga.Toolkit.Timer
             Between
         }
 
+        private const string IntervalMustBePositive = "Interval needs to be larger than zero.";
+
         private readonly object _syncRoot = new object();
         private readonly Func<long, Task> _elapsedAsync;
         private readonly Mode _mode;
@@ -82,14 +84,14 @@ namespace Tharga.Toolkit.Timer
         /// <summary>
         /// Initializes a new instance of the <see cref="ManagedTimer"/> class.
         /// </summary>
-        /// <param name="timeSpan">The interval between timer executions.</param>
+        /// <param name="timeSpan">The interval between timer executions. Must be larger than zero.</param>
         /// <param name="elapsedAsync">The async callback to invoke on each timer tick, receiving the current iteration number.</param>
         /// <param name="mode">The timing mode to use.</param>
         /// <param name="autoStart">Whether to start the timer immediately upon construction.</param>
         /// <param name="autoReset">Whether the timer should automatically repeat after each execution.</param>
         public ManagedTimer(TimeSpan timeSpan, Func<long, Task> elapsedAsync, Mode mode = Mode.OnTime, bool autoStart = false, bool autoReset = true)
         {
-            if (timeSpan.Ticks < 0) throw new ArgumentException("Interval needs to be larger than zero.");
+            ValidateInterval(timeSpan, nameof(timeSpan));
             if (elapsedAsync == null) throw new ArgumentNullException(nameof(elapsedAsync));
 
             _interval = timeSpan;
@@ -102,11 +104,13 @@ namespace Tharga.Toolkit.Timer
         /// <summary>
         /// Gets or sets the interval between timer executions. Raises <see cref="IntervalChangedEvent"/> when changed.
         /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The value is zero or negative.</exception>
         public TimeSpan Interval
         {
             get => _interval;
             set
             {
+                ValidateInterval(value, nameof(value));
                 if (_interval == value) return;
                 var oldInterval = _interval;
                 _interval = value;
@@ -203,19 +207,21 @@ namespace Tharga.Toolkit.Timer
                         iv = Interval;
                     }
 
-                    //NOTE: Calculate how many iterations to skip
-                    var skip = 0;
-                    while (iv.Ticks <= 0)
+                    var skip = 0L;
+                    if (iv.Ticks <= 0)
                     {
-                        _iteration += 1;
-                        var vv = new TimeSpan((HiResDateTime.UtcNowTicks - _startTime) - (_iteration * Interval.Ticks));
-                        iv = Interval - vv;
-                        skip++;
+                        // Computed from one clock reading; a loop that re-reads the clock can fall behind it for good.
+                        var intervalTicks = Interval.Ticks;
+                        var elapsedTicks = HiResDateTime.UtcNowTicks - _startTime;
+                        var lastDueIteration = elapsedTicks / intervalTicks;
+                        skip = lastDueIteration - _iteration;
+                        _iteration = lastDueIteration;
+                        iv = new TimeSpan((_iteration + 1) * intervalTicks - elapsedTicks);
                     }
 
                     if (skip > 0)
                     {
-                        SkipEvent?.Invoke(this, new SkipEventArgs(skip));
+                        SkipEvent?.Invoke(this, new SkipEventArgs((int)Math.Min(skip, int.MaxValue)));
                     }
 
                     // Recorded before the wait starts, so a restart after a Stop() can honour it.
@@ -310,6 +316,11 @@ namespace Tharga.Toolkit.Timer
             var oldState = State;
             State = state;
             StateChangedEvent?.Invoke(this, new StateChangedEventArgs(oldState, state));
+        }
+
+        private static void ValidateInterval(TimeSpan interval, string paramName)
+        {
+            if (interval.Ticks <= 0) throw new ArgumentOutOfRangeException(paramName, interval, IntervalMustBePositive);
         }
 
         private TimeSpan GetElapsed(long startTime)
