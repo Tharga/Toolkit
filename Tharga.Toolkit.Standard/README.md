@@ -157,6 +157,8 @@ var result = await executor.ExecuteAsync("user-123", async () =>
 });
 ```
 
+Since 1.18, each executor has its own locks. Before, every `SemaphoreExecutor<TKey>` with the same `TKey` shared them, so unrelated executors blocked each other and a call from one into another deadlocked. Code that must not run at the same time for a key now has to share one executor instance, for example a singleton. The lock is not reentrant: calling the same executor with the same key from inside its own action waits forever.
+
 ### Claims Extensions
 
 Extract identity, email, and display name from `ClaimsPrincipal`, `ClaimsIdentity`, or raw claims.

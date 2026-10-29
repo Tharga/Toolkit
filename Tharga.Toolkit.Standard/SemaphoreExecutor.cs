@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -10,30 +10,60 @@ namespace Tharga.Toolkit
     /// Threads with different keys will be executed in parallel.
     /// Thread with the same key will be executed one at a time.
     /// </summary>
+    /// <remarks>
+    /// Each instance has its own locks, so code that must not run at the same time for the same key has to share one instance.
+    /// The lock is not reentrant: an action that calls <see cref="ExecuteAsync{T}"/> on the same instance with the same key waits for itself.
+    /// </remarks>
     /// <typeparam name="TKey"></typeparam>
     public class SemaphoreExecutor<TKey>
     {
-        private static readonly ConcurrentDictionary<TKey, SemaphoreWrapper> _locks = new ConcurrentDictionary<TKey, SemaphoreWrapper>();
+        private readonly Dictionary<TKey, SemaphoreWrapper> _locks = new Dictionary<TKey, SemaphoreWrapper>();
 
         public async Task<T> ExecuteAsync<T>(TKey key, Func<Task<T>> action)
         {
-            var semaphoreWrapper = _locks.GetOrAdd(key, _ => new SemaphoreWrapper());
-            semaphoreWrapper.Increment();
+            var semaphoreWrapper = AcquireWrapper(key);
 
             try
             {
                 await semaphoreWrapper.Semaphore.WaitAsync();
-
-                var result = await action.Invoke();
-                return result;
+                try
+                {
+                    return await action.Invoke();
+                }
+                finally
+                {
+                    semaphoreWrapper.Semaphore.Release();
+                }
             }
             finally
             {
-                semaphoreWrapper.Semaphore.Release();
+                ReleaseWrapper(key, semaphoreWrapper);
+            }
+        }
 
-                if (semaphoreWrapper.Decrement() == 0)
+        private SemaphoreWrapper AcquireWrapper(TKey key)
+        {
+            lock (_locks)
+            {
+                if (!_locks.TryGetValue(key, out var semaphoreWrapper))
                 {
-                    _locks.TryRemove(key, out _);
+                    semaphoreWrapper = new SemaphoreWrapper();
+                    _locks.Add(key, semaphoreWrapper);
+                }
+
+                semaphoreWrapper.RefCount++;
+                return semaphoreWrapper;
+            }
+        }
+
+        private void ReleaseWrapper(TKey key, SemaphoreWrapper semaphoreWrapper)
+        {
+            lock (_locks)
+            {
+                semaphoreWrapper.RefCount--;
+                if (semaphoreWrapper.RefCount == 0)
+                {
+                    _locks.Remove(key);
                 }
             }
         }
@@ -41,10 +71,7 @@ namespace Tharga.Toolkit
         private class SemaphoreWrapper
         {
             public readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
-            private int _refCount;
-
-            public void Increment() => Interlocked.Increment(ref _refCount);
-            public int Decrement() => Interlocked.Decrement(ref _refCount);
+            public int RefCount;
         }
     }
 }

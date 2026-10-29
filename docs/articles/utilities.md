@@ -133,6 +133,10 @@ var result = await executor.ExecuteAsync("user-123", async () =>
 });
 ```
 
+Share one executor instance (for example register it as a singleton) between the callers that must be serialized. The lock is not reentrant: calling the same executor with the same key from inside its own action waits forever.
+
+> Since 1.18, each executor has its own locks. Before, every `SemaphoreExecutor<TKey>` with the same `TKey` shared them, so unrelated executors blocked each other and a call from one into another deadlocked. Code that created a new executor per call and relied on that sharing has to keep one instance instead.
+
 ## Smart Enum
 
 ```csharp
