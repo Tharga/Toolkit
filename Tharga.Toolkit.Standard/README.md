@@ -170,7 +170,7 @@ Extract identity, email, and display name from `ClaimsPrincipal`, `ClaimsIdentit
 // Identity extraction (checks sub, oid, nameid, uid, NameIdentifier)
 var (identity, type) = principal.GetIdentity();
 
-// Email extraction (checks email, emails, preferred_username, name)
+// Email extraction (checks email, ClaimTypes.Email, emails, preferred_username, name)
 var email = principal.GetEmail();
 var domain = principal.GetEmailDomain();
 

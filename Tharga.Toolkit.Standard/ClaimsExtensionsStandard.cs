@@ -67,6 +67,7 @@ namespace Tharga.Toolkit
             var arr = claims as Claim[] ?? claims.ToArray();
 
             var email = arr.FirstOrDefault(x => x.Type == "email")?.Value ??
+                        arr.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value ??
                         arr.FirstOrDefault(x => x.Type == "emails")?.Value.Replace("[\"", "").Replace("\"]", "");
 
             if (string.IsNullOrEmpty(email))

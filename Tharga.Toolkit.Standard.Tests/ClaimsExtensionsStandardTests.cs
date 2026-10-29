@@ -90,6 +90,32 @@ public class ClaimsExtensionsStandardTests
     }
 
     [Fact]
+    public void GetEmail_returns_mapped_email_claim_before_preferred_username_and_name()
+    {
+        var claims = new List<Claim>
+        {
+            new("name", "user@name.example"),
+            new("preferred_username", "user@login.example"),
+            new(ClaimTypes.Email, "user@mail.example")
+        };
+
+        claims.GetEmail().Should().Be("user@mail.example");
+        claims.GetEmailDomain().Should().Be("mail.example");
+    }
+
+    [Fact]
+    public void GetEmail_prefers_email_claim_over_mapped_email_claim()
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Email, "mapped@example.com"),
+            new("email", "test@example.com")
+        };
+
+        claims.GetEmail().Should().Be("test@example.com");
+    }
+
+    [Fact]
     public void GetEmail_falls_back_to_preferred_username()
     {
         var claims = new List<Claim> { new("preferred_username", "user@example.com") };
