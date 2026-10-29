@@ -72,10 +72,19 @@ namespace Tharga.Toolkit
             return $"{item.ToShortDateString()} {item.ToLongTimeString()}";
         }
 
-        /// <summary>Formats a TimeSpan as "H:mm:ss".</summary>
+        /// <summary>Formats a TimeSpan as total hours, minutes, and seconds ("H:mm:ss"). Negative values are prefixed with "-".</summary>
         public static string ToTimeString(this TimeSpan timeSpan)
         {
-            return $"{timeSpan.Hours}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
+            var ticks = timeSpan.Ticks;
+            var isNegative = ticks < 0;
+            var absoluteTicks = isNegative
+                ? (ulong)(-(ticks + 1)) + 1
+                : (ulong)ticks;
+            var totalHours = absoluteTicks / (ulong)TimeSpan.TicksPerHour;
+            var minutes = absoluteTicks / (ulong)TimeSpan.TicksPerMinute % 60;
+            var seconds = absoluteTicks / (ulong)TimeSpan.TicksPerSecond % 60;
+
+            return $"{(isNegative ? "-" : string.Empty)}{totalHours}:{minutes:00}:{seconds:00}";
         }
 
         /// <summary>Formats a nullable DateTime as a human-readable duration string relative to now.</summary>

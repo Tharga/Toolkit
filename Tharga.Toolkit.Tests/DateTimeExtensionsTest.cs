@@ -33,6 +33,25 @@ public class DateTimeExtensionsTest
         result.Should().Be($"{diff.Hours}:{diff.Minutes:00}:{diff.Seconds:00}", "Parsed TimeSpan to 'Time String' is not right");
     }
 
+    [Theory]
+    [InlineData(400, "0:06:40")]
+    [InlineData(86400, "24:00:00")]
+    [InlineData(90000, "25:00:00")]
+    [InlineData(-91800, "-25:30:00")]
+    [InlineData(-1, "-0:00:01")]
+    public void ToTimeString_uses_total_hours_and_preserves_negative_sign(long seconds, string expected)
+    {
+        var duration = TimeSpan.FromSeconds(seconds);
+
+        duration.ToTimeString().Should().Be(expected);
+    }
+
+    [Fact]
+    public void ToTimeString_handles_TimeSpan_MinValue()
+    {
+        TimeSpan.FromTicks(long.MinValue).ToTimeString().Should().Be("-256204778:48:05");
+    }
+
 
     [Theory]
     [InlineData(0, "0 ms")]
