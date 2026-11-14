@@ -1144,5 +1144,20 @@ namespace Tharga.Toolkit.Tests.Compare
             // Assert
             diffs.Should().BeEmpty();
         }
+
+        [Fact]
+        public void When_the_result_is_enumerated_more_than_once()
+        {
+            // Arrange
+            var diffs = new SomeItem { V = 1 }.Compare(new SomeItem { V = 2 });
+
+            // Act
+            var first = diffs.Count();
+            var second = diffs.Count();
+
+            // Assert
+            first.Should().Be(1);
+            second.Should().Be(1);
+        }
     }
 }

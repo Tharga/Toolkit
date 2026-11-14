@@ -43,7 +43,8 @@ namespace Tharga.Toolkit.Compare
         /// <returns>An enumerable of <see cref="IDiff"/> representing the differences between the two objects.</returns>
         public static IEnumerable<IDiff> Compare(this object s1, object s2, CompareMode compareMode = CompareMode.Standard)
         {
-            return DoCompare(null, null, s1, s2, compareMode, new VisitedObjects());
+            foreach (var diff in DoCompare(null, null, s1, s2, compareMode, new VisitedObjects()))
+                yield return diff;
         }
 
         private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
