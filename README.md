@@ -10,7 +10,7 @@ A collection of .NET utility libraries providing extensions and helpers for comm
 ## Installation
 
 ```bash
-# .NET version (net8.0, net9.0, net10.0) — includes all Standard features plus extras
+# .NET version (net10.0, net11.0) — includes all Standard features plus extras
 dotnet add package Tharga.Toolkit
 
 # Standard version (netstandard2.0) — for broader compatibility
@@ -19,7 +19,7 @@ dotnet add package Tharga.Toolkit.Standard
 
 ### Which package should I use?
 
-- **Tharga.Toolkit** — if your project targets .NET 8 or later. Includes everything from Standard plus additional features (Hash, Claims, ApiKey, async enumerables, URI extensions).
+- **Tharga.Toolkit** — if your project targets .NET 10 or later (net10.0 and net11.0 are supported). Includes everything from Standard plus additional features (Hash, Claims, ApiKey, async enumerables, URI extensions).
 - **Tharga.Toolkit.Standard** — if you need .NET Standard 2.0 compatibility (e.g. shared libraries targeting both .NET Framework and .NET).
 
 ## .NET

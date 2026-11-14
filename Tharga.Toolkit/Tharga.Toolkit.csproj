@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0</TargetFrameworks>
+		<TargetFrameworks>net10.0;net11.0</TargetFrameworks>
 		<Authors>Daniel Bohlin</Authors>
 		<Company>Thargelion AB</Company>
 		<Product>Tharga Toolkit</Product>
@@ -44,11 +44,20 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.14" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.14" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.403">
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="11.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="11.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
