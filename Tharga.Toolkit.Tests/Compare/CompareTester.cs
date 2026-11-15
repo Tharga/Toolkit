@@ -1144,5 +1144,37 @@ namespace Tharga.Toolkit.Tests.Compare
             // Assert
             diffs.Should().BeEmpty();
         }
+
+        [Fact]
+        public void When_a_shared_instance_is_paired_with_different_objects()
+        {
+            // Arrange
+            var shared = new SomeItem { V = 1 };
+            var o1 = new SomePair<SomeItem> { A = shared, B = shared };
+            var o2 = new SomePair<SomeItem> { A = new SomeItem { V = 1 }, B = new SomeItem { V = 2 } };
+
+            // Act
+            var forward = o1.Compare(o2).ToArray();
+            var backward = o2.Compare(o1).ToArray();
+
+            // Assert
+            forward.Should().HaveCount(1);
+            backward.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void When_the_result_is_enumerated_more_than_once()
+        {
+            // Arrange
+            var diffs = new SomeItem { V = 1 }.Compare(new SomeItem { V = 2 });
+
+            // Act
+            var first = diffs.Count();
+            var second = diffs.Count();
+
+            // Assert
+            first.Should().Be(1);
+            second.Should().Be(1);
+        }
     }
 }

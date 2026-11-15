@@ -43,7 +43,8 @@ namespace Tharga.Toolkit.Compare
         /// <returns>An enumerable of <see cref="IDiff"/> representing the differences between the two objects.</returns>
         public static IEnumerable<IDiff> Compare(this object s1, object s2, CompareMode compareMode = CompareMode.Standard)
         {
-            return DoCompare(null, null, s1, s2, compareMode, new VisitedObjects());
+            foreach (var diff in DoCompare(null, null, s1, s2, compareMode, new VisitedObjects()))
+                yield return diff;
         }
 
         private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
@@ -256,11 +257,10 @@ namespace Tharga.Toolkit.Compare
 
         private static IEnumerable<IDiff> CompareMembers(string item1Name, string item2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
         {
-            if (visited.Contains(s1) || visited.Contains(s2))
+            if (visited.Contains(s1, s2))
                 yield break;
 
-            visited.Enter(s1);
-            visited.Enter(s2);
+            visited.Enter(s1, s2);
             try
             {
                 var fields = s1.GetType().GetFields(InstanceMembers);
@@ -303,8 +303,7 @@ namespace Tharga.Toolkit.Compare
             }
             finally
             {
-                visited.Leave(s2);
-                visited.Leave(s1);
+                visited.Leave(s1, s2);
             }
         }
 
@@ -330,41 +329,55 @@ namespace Tharga.Toolkit.Compare
             return null;
         }
 
-        // Ends cycles. A boxed value type is a new object on every read, so it is matched by value, and only while its own members are compared.
+        // Ends cycles. A reference pair is skipped once compared; a boxed value type is a new object on every read, so it is matched by value, and only while its own members are compared.
         private sealed class VisitedObjects
         {
-            private readonly HashSet<object> _references = new HashSet<object>(ReferenceComparer.Instance);
+            private readonly HashSet<(object, object)> _referencePairs = new HashSet<(object, object)>(ReferencePairComparer.Instance);
             private readonly List<object> _valuesInProgress = new List<object>();
 
-            public bool Contains(object item)
+            public bool Contains(object item1, object item2)
             {
-                return item.GetType().IsValueType
-                    ? _valuesInProgress.Any(x => x.GetType() == item.GetType() && x.Equals(item))
-                    : _references.Contains(item);
+                if (!item1.GetType().IsValueType && !item2.GetType().IsValueType)
+                    return _referencePairs.Contains((item1, item2));
+
+                return IsValueInProgress(item1) || IsValueInProgress(item2);
             }
 
-            public void Enter(object item)
+            public void Enter(object item1, object item2)
             {
-                if (item.GetType().IsValueType)
-                    _valuesInProgress.Add(item);
-                else
-                    _references.Add(item);
+                if (!item1.GetType().IsValueType && !item2.GetType().IsValueType)
+                {
+                    _referencePairs.Add((item1, item2));
+                    return;
+                }
+
+                if (item1.GetType().IsValueType)
+                    _valuesInProgress.Add(item1);
+                if (item2.GetType().IsValueType)
+                    _valuesInProgress.Add(item2);
             }
 
-            public void Leave(object item)
+            public void Leave(object item1, object item2)
             {
-                if (item.GetType().IsValueType)
+                if (item2.GetType().IsValueType)
                     _valuesInProgress.RemoveAt(_valuesInProgress.Count - 1);
+                if (item1.GetType().IsValueType)
+                    _valuesInProgress.RemoveAt(_valuesInProgress.Count - 1);
+            }
+
+            private bool IsValueInProgress(object item)
+            {
+                return item.GetType().IsValueType && _valuesInProgress.Any(x => x.GetType() == item.GetType() && x.Equals(item));
             }
         }
 
-        private sealed class ReferenceComparer : IEqualityComparer<object>
+        private sealed class ReferencePairComparer : IEqualityComparer<(object, object)>
         {
-            public static readonly ReferenceComparer Instance = new ReferenceComparer();
+            public static readonly ReferencePairComparer Instance = new ReferencePairComparer();
 
-            public new bool Equals(object x, object y) => ReferenceEquals(x, y);
+            public bool Equals((object, object) x, (object, object) y) => ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
 
-            public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+            public int GetHashCode((object, object) obj) => (RuntimeHelpers.GetHashCode(obj.Item1) * 397) ^ RuntimeHelpers.GetHashCode(obj.Item2);
         }
     }
 }
