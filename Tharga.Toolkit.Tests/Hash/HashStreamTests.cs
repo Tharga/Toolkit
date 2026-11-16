@@ -59,8 +59,23 @@ public class HashStreamTests
 
         //Assert
         await act.Should()
-            .ThrowAsync<NullReferenceException>()
-            .WithMessage("Stream is null.");
+            .ThrowAsync<ArgumentNullException>()
+            .WithParameterName("stream");
+    }
+
+    [Fact]
+    public async Task NullStreamHash()
+    {
+        //Arrange
+        MemoryStream ms = null;
+
+        //Act
+        var act = async () => { _ = await ms.ToHashAsync(); };
+
+        //Assert
+        await act.Should()
+            .ThrowAsync<ArgumentNullException>()
+            .WithParameterName("stream");
     }
 
     [Theory]
@@ -98,8 +113,24 @@ public class HashStreamTests
 
         //Assert
         await act.Should()
-            .ThrowAsync<NullReferenceException>()
-            .WithMessage("Stream input is null.");
+            .ThrowAsync<ArgumentNullException>()
+            .WithParameterName("input");
+    }
+
+    [Fact]
+    public async Task ToHashAndOutputAsyncTestInputNullWithoutFormat()
+    {
+        //Arrange
+        MemoryStream input = null;
+        var output = new MemoryStream();
+
+        //Act
+        var act = async () => { _ = await input.ToHashAndOutputAsync(output); };
+
+        //Assert
+        await act.Should()
+            .ThrowAsync<ArgumentNullException>()
+            .WithParameterName("input");
     }
 
     [Fact]

@@ -115,17 +115,20 @@ public static class HashExtensions
     /// <summary>
     /// Asynchronously computes a hash from a stream.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
     public static Task<Hash> ToHashAsync(this Stream stream, HashType type = HashType.MD5)
     {
+        if (stream == null) throw new ArgumentNullException(nameof(stream));
         return ComputeHashCoreAsync(stream, null, type);
     }
 
     /// <summary>
     /// Asynchronously computes a hash from a stream and returns a formatted string representation.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <c>null</c>.</exception>
     public static async Task<HashString> ToHashAsync(this Stream stream, HashFormat format, HashType type = HashType.MD5)
     {
-        if (stream == null) throw new NullReferenceException($"{nameof(Stream)} is null.");
+        if (stream == null) throw new ArgumentNullException(nameof(stream));
         var result = await stream.ToHashAsync(type);
         return result.FormatHash(format);
     }
@@ -133,17 +136,20 @@ public static class HashExtensions
     /// <summary>
     /// Asynchronously computes a hash while copying the stream content to an output stream.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>. A <c>null</c> <paramref name="output"/> is allowed and only the hash is computed.</exception>
     public static Task<Hash> ToHashAndOutputAsync(this Stream input, Stream output, HashType type = HashType.MD5)
     {
+        if (input == null) throw new ArgumentNullException(nameof(input));
         return ComputeHashCoreAsync(input, output, type);
     }
 
     /// <summary>
     /// Asynchronously computes a hash while copying the stream, returning a formatted string.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <c>null</c>. A <c>null</c> <paramref name="output"/> is allowed and only the hash is computed.</exception>
     public static async Task<HashString> ToHashAndOutputAsync(this Stream input, Stream output, HashFormat format, HashType type = HashType.MD5)
     {
-        if (input == null) throw new NullReferenceException($"{nameof(Stream)} {nameof(input)} is null.");
+        if (input == null) throw new ArgumentNullException(nameof(input));
         var result = await ToHashAndOutputAsync(input, output, type);
         return result.FormatHash(format);
     }
