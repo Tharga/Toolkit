@@ -139,6 +139,13 @@ namespace Tharga.Toolkit.Compare
                 yield break;
             }
 
+            if (s1 is DateTimeOffset || s2 is DateTimeOffset)
+            {
+                foreach (var diff in CompareDateTimeOffsets(s1, s2, item1Name, item2Name))
+                    yield return diff;
+                yield break;
+            }
+
             if (!DateTime.TryParse(s1.ToString(), out var i1))
                 yield return new Diff(item1Name, item2Name, $"Cannot parse {item1Name} with value {s1} to an DateTime to compare with {item2Name} with value {s2}.", null);
             else
@@ -146,7 +153,32 @@ namespace Tharga.Toolkit.Compare
                 if (!DateTime.TryParse(s2.ToString(), out var i2))
                     yield return new Diff(item1Name, item2Name, $"Cannot parse {item2Name} with value {s2} to an DateTime to compare with {item1Name} with value {s1}.", null);
                 else if (i1 - i2 != new TimeSpan())
-                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {((DateTime) s1).ToShortDateString() + " " + ((DateTime) s1).ToLongTimeString()} and differs from {item2Name} with {((DateTime) s2).ToShortDateString() + " " + ((DateTime) s2).ToLongTimeString()} by {Math.Abs(((DateTime) s1 - (DateTime) s2).Ticks)} ticks.", null);
+                    yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {i1.ToShortDateString() + " " + i1.ToLongTimeString()} and differs from {item2Name} with {i2.ToShortDateString() + " " + i2.ToLongTimeString()} by {Math.Abs((i1 - i2).Ticks)} ticks.", null);
+            }
+        }
+
+        private static IEnumerable<IDiff> CompareDateTimeOffsets(object s1, object s2, string item1Name, string item2Name)
+        {
+            if (!TryToDateTimeOffset(s1, out var o1))
+                yield return new Diff(item1Name, item2Name, $"Cannot parse {item1Name} with value {s1} to an DateTimeOffset to compare with {item2Name} with value {s2}.", null);
+            else if (!TryToDateTimeOffset(s2, out var o2))
+                yield return new Diff(item1Name, item2Name, $"Cannot parse {item2Name} with value {s2} to an DateTimeOffset to compare with {item1Name} with value {s1}.", null);
+            else if (o1 != o2)
+                yield return new Diff(item1Name, item2Name, $"Value of DateTime {item1Name} is {o1:O} and differs from {item2Name} with {o2:O} by {Math.Abs((o1 - o2).Ticks)} ticks.", null);
+        }
+
+        private static bool TryToDateTimeOffset(object value, out DateTimeOffset result)
+        {
+            switch (value)
+            {
+                case DateTimeOffset offset:
+                    result = offset;
+                    return true;
+                case DateTime dateTime:
+                    result = new DateTimeOffset(dateTime);
+                    return true;
+                default:
+                    return DateTimeOffset.TryParse(value.ToString(), out result);
             }
         }
 
