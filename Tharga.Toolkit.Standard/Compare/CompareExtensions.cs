@@ -47,22 +47,22 @@ namespace Tharga.Toolkit.Compare
                 yield return diff;
         }
 
-        private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited)
+        private static IEnumerable<IDiff> DoCompare(string parentObject1Name, string parentObject2Name, object s1, object s2, CompareMode compareMode, VisitedObjects visited, string memberName = null)
         {
             if (ReferenceEquals(s1, s2))
                 yield break;
 
             if (s1 == null)
-                yield return new Diff(parentObject1Name, parentObject2Name, "One item has a value and the other is null.", null);
+                yield return new Diff(MemberPath(parentObject1Name, memberName, null), MemberPath(parentObject2Name, memberName, null), "One item has a value and the other is null.", null);
             else if (s2 == null)
-                yield return new Diff(parentObject1Name, parentObject2Name, "One item is null and the other has a value.", null);
+                yield return new Diff(MemberPath(parentObject1Name, memberName, null), MemberPath(parentObject2Name, memberName, null), "One item is null and the other has a value.", null);
             else
             {
                 var tp1 = s1.GetType();
                 var tp2 = s2.GetType();
 
-                var item1Name = parentObject1Name != null ? $"{parentObject1Name}.{s1.GetType().Name}" : s1.GetType().Name;
-                var item2Name = parentObject1Name != null ? $"{parentObject2Name}.{s2.GetType().Name}" : s2.GetType().Name;
+                var item1Name = MemberPath(parentObject1Name, memberName, tp1);
+                var item2Name = MemberPath(parentObject2Name, memberName, tp2);
 
                 if (tp1 != tp2 && (compareMode & CompareMode.IgnoreType) != CompareMode.IgnoreType)
                     yield return new DifferentTypes(item1Name, tp1, tp2, null);
@@ -100,6 +100,18 @@ namespace Tharga.Toolkit.Compare
                     }
                 }
             }
+        }
+
+        private static string MemberPath(string parentName, string memberName, Type valueType)
+        {
+            if (memberName != null)
+            {
+                var memberPath = parentName != null ? $"{parentName}.{memberName}" : memberName;
+                return valueType != null && valueType.IsArray ? $"{memberPath}[]" : memberPath;
+            }
+
+            if (valueType == null) return parentName;
+            return parentName != null ? $"{parentName}.{valueType.Name}" : valueType.Name;
         }
 
         private static IEnumerable<IDiff> CompareInts(object s1, object s2, string item1Name, string item2Name)
@@ -305,7 +317,7 @@ namespace Tharga.Toolkit.Compare
                         yield return diff1;
                     else
                     {
-                        var diffs = DoCompare(item1Name, item2Name, f1, f2, compareMode, visited);
+                        var diffs = DoCompare(item1Name, item2Name, f1, f2, compareMode, visited, field.Name);
 
                         foreach (var diff in diffs)
                         {
@@ -324,7 +336,7 @@ namespace Tharga.Toolkit.Compare
                         yield return diff1;
                     else
                     {
-                        var diffs = DoCompare(item1Name, item2Name, v1, v2, compareMode, visited);
+                        var diffs = DoCompare(item1Name, item2Name, v1, v2, compareMode, visited, prop.Name);
 
                         foreach (var diff in diffs)
                         {
@@ -357,7 +369,7 @@ namespace Tharga.Toolkit.Compare
                 return val;
             }
 
-            diff = new Diff(item1Name, item2Name, $"Cannot find the property or field named {name} in object of type {s2.GetType()}.", null);
+            diff = new Diff(MemberPath(item1Name, name, null), MemberPath(item2Name, name, null), $"Cannot find the property or field named {name} in object of type {s2.GetType()}.", null);
             return null;
         }
 
