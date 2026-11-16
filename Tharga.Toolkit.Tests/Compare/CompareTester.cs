@@ -1176,5 +1176,48 @@ namespace Tharga.Toolkit.Tests.Compare
             first.Should().Be(1);
             second.Should().Be(1);
         }
+
+        [Fact]
+        public void When_a_date_time_differs_from_a_date_time_offset_with_ignore_type()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+            var o2 = new DateTimeOffset(2026, 1, 1, 13, 0, 0, TimeSpan.Zero);
+
+            // Act
+            var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+            diffs.Single().Message.Should().Contain(TimeSpan.FromHours(1).Ticks.ToString());
+        }
+
+        [Fact]
+        public void When_a_date_time_equals_a_date_time_offset_with_ignore_type()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+            var o2 = new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+
+            // Act
+            var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType).ToArray();
+
+            // Assert
+            diffs.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_a_date_time_differs_from_a_date_time_offset_by_milliseconds_with_ignore_type()
+        {
+            // Arrange
+            var o1 = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc);
+            var o2 = new DateTimeOffset(2026, 1, 1, 12, 0, 0, 500, TimeSpan.Zero);
+
+            // Act
+            var diffs = o1.Compare(o2, CompareExtensions.CompareMode.IgnoreType).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+        }
     }
 }

@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using AwesomeAssertions;
 using Xunit;
 
@@ -68,5 +70,38 @@ public class ConcurrentTwoLevelDictionaryTests
     {
         var dict = new ConcurrentTwoLevelDictionary<string, string, int>();
         dict.TryRemove("missing", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryRemove_concurrent_with_AddOrUpdate_never_loses_the_write()
+    {
+        const int iterations = 20000;
+        var lost = 0;
+
+        for (var i = 0; i < iterations; i++)
+        {
+            var dict = new ConcurrentTwoLevelDictionary<string, string, int>();
+            dict.AddOrUpdate("main", "existing", 1);
+            using var barrier = new Barrier(2);
+            var seenByRemover = false;
+
+            var adder = Task.Run(() =>
+            {
+                barrier.SignalAndWait();
+                dict.AddOrUpdate("main", "added", 2);
+            });
+            var remover = Task.Run(() =>
+            {
+                barrier.SignalAndWait();
+                dict.TryRemove("main", out var removed);
+                seenByRemover = removed.ContainsKey("added");
+            });
+            await Task.WhenAll(adder, remover);
+
+            var storedAfterwards = dict.TryGetSubDictonary("main", out var current) && current.ContainsKey("added");
+            if (!seenByRemover && !storedAfterwards) lost++;
+        }
+
+        lost.Should().Be(0);
     }
 }

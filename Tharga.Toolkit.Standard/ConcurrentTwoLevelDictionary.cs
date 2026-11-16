@@ -81,7 +81,15 @@ namespace Tharga.Toolkit
         /// <returns>True if the sub-dictionary was removed; otherwise, false.</returns>
         public bool TryRemove(TMainKey mainKey, out ConcurrentDictionary<TSubKey, TData> dictionary)
         {
-            return _mainStore.TryRemove(mainKey, out dictionary);
+            try
+            {
+                _lock.Wait();
+                return _mainStore.TryRemove(mainKey, out dictionary);
+            }
+            finally
+            {
+                _lock.Release();
+            }
         }
     }
 }

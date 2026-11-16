@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -45,6 +46,11 @@ namespace Tharga.Toolkit
             return digits.Last() == CheckDigit(digits.Take(digits.Count - 1).ToList());
         }
 
+        private static bool IsDigits(string digits)
+        {
+            return !string.IsNullOrEmpty(digits) && digits.All(d => d >= '0' && d <= '9');
+        }
+
         private static IList<int> ToDigitList(this string digits)
         {
             return digits.Select(d => d - 48).ToList();
@@ -55,8 +61,11 @@ namespace Tharga.Toolkit
         /// </summary>
         /// <param name="digits">The string of digit characters to compute the check digit for.</param>
         /// <returns>The computed Luhn check digit as a string.</returns>
+        /// <exception cref="ArgumentException">The string is null, empty or contains a character that is not a digit.</exception>
         public static string CheckDigit(this string digits)
         {
+            if (!IsDigits(digits)) throw new ArgumentException("The value must be a non-empty string of digits.", nameof(digits));
+
             return digits.ToDigitList().CheckDigit().ToString(CultureInfo.InvariantCulture);
         }
 
@@ -65,6 +74,7 @@ namespace Tharga.Toolkit
         /// </summary>
         /// <param name="digits">The string of digit characters.</param>
         /// <returns>The original string with the check digit appended.</returns>
+        /// <exception cref="ArgumentException">The string is null, empty or contains a character that is not a digit.</exception>
         public static string AppendCheckDigit(this string digits)
         {
             return digits + digits.CheckDigit();
@@ -74,9 +84,11 @@ namespace Tharga.Toolkit
         /// Validates whether the last character in the string is a valid Luhn check digit.
         /// </summary>
         /// <param name="digits">The string of digit characters including the check digit as the last character.</param>
-        /// <returns>True if the check digit is valid; otherwise, false.</returns>
+        /// <returns>True if the check digit is valid; false if it is not, or if the string is null, empty or contains a character that is not a digit.</returns>
         public static bool HasValidCheckDigit(this string digits)
         {
+            if (!IsDigits(digits)) return false;
+
             return digits.ToDigitList().HasValidCheckDigit();
         }
 
