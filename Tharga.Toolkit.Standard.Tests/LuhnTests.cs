@@ -39,4 +39,32 @@ public class LuhnTests
         Assert.Equal("361568", "36156".AppendCheckDigit());
         Assert.Equal("79927398713", "7992739871".AppendCheckDigit());
     }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("4111-1111-1111-1111")]
+    [InlineData("4111 1111 1111 1111")]
+    [InlineData("7992739871a")]
+    [InlineData("-")]
+    public void HasValidCheckDigit_returns_false_for_empty_or_non_digit_string(string value)
+    {
+        Assert.False(value.HasValidCheckDigit());
+    }
+
+    [Fact]
+    public void HasValidCheckDigit_returns_false_for_null_string()
+    {
+        Assert.False(((string)null).HasValidCheckDigit());
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("4111-1111-1111-111")]
+    [InlineData("7992 739871")]
+    [InlineData("x")]
+    public void CheckDigit_throws_for_empty_or_non_digit_string(string value)
+    {
+        Assert.Throws<ArgumentException>(() => value.CheckDigit());
+        Assert.Throws<ArgumentException>(() => value.AppendCheckDigit());
+    }
 }
