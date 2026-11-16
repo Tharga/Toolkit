@@ -46,6 +46,8 @@ foreach (var diff in diffs) Console.WriteLine(diff.Message);
 var ignoreOrder = list1.Compare(list2, CompareExtensions.CompareMode.IgnoreSortOrder);
 ```
 
+Since 1.19, a diff names the member it was found on, not the member's type: `SomeTestClass.StringProperty` rather than `SomeTestClass.String`. The path is the type of the compared root, then each member name, for example `Order.Lines.OrderLine.Price`; an item in a collection adds its type name (and its index, for arrays). A member that is null on one side is reported against the member (`Order.Customer`), and a member missing on the other object is named the same way. Code that matched on the old `ObjectName` / `OtherObjectName` values needs updating.
+
 ### ManagedTimer
 
 ```csharp

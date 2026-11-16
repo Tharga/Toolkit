@@ -33,6 +33,8 @@ var streamHash = await stream.ToHashAsync(HashFormat.Base64, HashType.SHA256);
 var base32 = hex.ChangeFormat(HashFormat.Base32);
 ```
 
+Since 1.19, a null stream passed to `ToHashAsync` or `ToHashAndOutputAsync` throws `ArgumentNullException` (parameter `stream` or `input`) in all four overloads. Before, two of them threw `NullReferenceException` and two failed with an incidental `NullReferenceException`. A null output stream is still allowed and only the hash is computed.
+
 ### Base32 Encoding
 
 RFC 4648 Base32 encoding and decoding.
