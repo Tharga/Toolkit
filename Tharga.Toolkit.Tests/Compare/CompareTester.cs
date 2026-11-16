@@ -1219,5 +1219,52 @@ namespace Tharga.Toolkit.Tests.Compare
             // Assert
             diffs.Should().HaveCount(1);
         }
+
+        [Fact]
+        public void Diff_names_the_member_when_two_string_members_differ()
+        {
+            // Arrange
+            var o1 = new SomeTestClass(1) { StringMember = "A", StringProperty = "B" };
+            var o2 = new SomeTestClass(1) { StringMember = "X", StringProperty = "Y" };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Select(x => x.ObjectName).Should().BeEquivalentTo("SomeTestClass.StringMember", "SomeTestClass.StringProperty");
+            diffs.Select(x => x.OtherObjectName).Should().BeEquivalentTo("SomeTestClass.StringMember", "SomeTestClass.StringProperty");
+        }
+
+        [Fact]
+        public void Diff_names_the_member_when_a_member_is_null_on_one_side()
+        {
+            // Arrange
+            var o1 = new SomeTestClass(1) { StringProperty = "B" };
+            var o2 = new SomeTestClass(1) { StringProperty = null };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+            diffs.Single().ObjectName.Should().Be("SomeTestClass.StringProperty");
+            diffs.Single().OtherObjectName.Should().Be("SomeTestClass.StringProperty");
+            diffs.Single().Message.Should().Be("One item is null and the other has a value.");
+        }
+
+        [Fact]
+        public void Diff_names_the_nested_member_path()
+        {
+            // Arrange
+            var o1 = new SomeTestClass(1) { ClassListProperty = new List<SomeTestClass> { new SomeTestClass(1) { StringProperty = "A" } } };
+            var o2 = new SomeTestClass(1) { ClassListProperty = new List<SomeTestClass> { new SomeTestClass(1) { StringProperty = "B" } } };
+
+            // Act
+            var diffs = o1.Compare(o2).ToArray();
+
+            // Assert
+            diffs.Should().HaveCount(1);
+            diffs.Single().ObjectName.Should().Be("SomeTestClass.ClassListProperty.SomeTestClass.StringProperty");
+        }
     }
 }

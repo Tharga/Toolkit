@@ -56,6 +56,8 @@ Public instance fields and properties are compared; static members are not.
 
 Since 1.18, a record, struct or other value with its own `Equals` is compared wherever it appears. Before, it was skipped when an equal value had been compared earlier, so a difference in it could go unreported.
 
+Since 1.19, a diff names the member it was found on, not the member's type: `SomeTestClass.StringProperty` rather than `SomeTestClass.String`. The path is the type of the compared root, then each member name, for example `Order.Lines.OrderLine.Price`; an item in a collection adds its type name (and its index, for arrays). A member that is null on one side is reported against the member (`Order.Customer`), and a member missing on the other object is named the same way. Code that matched on the old `ObjectName` / `OtherObjectName` values needs updating.
+
 Since 1.18, two `DateTime` values are compared exactly: a difference below one second, down to a single tick, is reported, and so is a different `Kind` with the same clock time. Before, both compared as equal.
 
 ### DateTime Extensions

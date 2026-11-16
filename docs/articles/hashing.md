@@ -15,6 +15,8 @@ await using var stream = File.OpenRead("file.dat");
 var streamHash = await stream.ToHashAsync(HashFormat.Base64, HashType.SHA256);
 ```
 
+Since 1.19, a null stream passed to `ToHashAsync` or `ToHashAndOutputAsync` throws `ArgumentNullException` (parameter `stream` or `input`) in all four overloads. Before, two of them threw `NullReferenceException` and two failed with an incidental `NullReferenceException`. A null output stream is still allowed and only the hash is computed.
+
 ### Format conversion
 
 `HashString` carries both the formatted representation and the original bytes, so you can re-format without recomputing the hash:
